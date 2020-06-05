@@ -1,3 +1,9 @@
 [submodule "tpt/websocketpp"]
 	path = tpt/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "tpt/cli"]
+	path = tpt/cli
+	url = https://github.com/daniele77/cli.git
+[submodule "tpt/json"]
+	path = tpt/json
+	url = https://github.com/nlohmann/json.git
