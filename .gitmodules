@@ -3,7 +3,8 @@
 	url = https://github.com/zaphoyd/websocketpp.git
 [submodule "tpt/cli"]
 	path = tpt/cli
-	url = https://github.com/daniele77/cli.git
+	url = https://github.com/vazk/cli.git
+    branch = metriffic
 [submodule "tpt/json"]
 	path = tpt/json
 	url = https://github.com/nlohmann/json.git
