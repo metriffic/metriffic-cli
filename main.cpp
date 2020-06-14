@@ -18,8 +18,7 @@ struct Context
     Context() 
      : root_menu(std::make_unique< Menu >( "metriffic" )),
        cli(std::move(root_menu), std::make_unique<FileHistoryStorage>(".cli")),
-       session(cli, ios, std::cout, 200),
-       login_data({nlohmann::json(), false})
+       session(cli, ios, std::cout, 200)
     {     
         cli.ExitAction([this](auto& out){ 
                            session.disable_prompt();
@@ -43,12 +42,11 @@ struct Context
 
     void logged_in(const nlohmann::json& data) 
     {
-        login_data = {data, true};
         gql_manager.set_jwt_token(data["token"]);
     }
     void logged_out()
     {
-        login_data = {nlohmann::json(), false};
+        gql_manager.set_jwt_token("");
     }
 
     void on_connection_close() 
@@ -88,8 +86,6 @@ struct Context
     metriffic::gql_connection_manager gql_manager;
 private:
     std::thread gql_manager_thread;
-private:
-    std::pair<nlohmann::json, bool> login_data;
 };
 
 Context context;

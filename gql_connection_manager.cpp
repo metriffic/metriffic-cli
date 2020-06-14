@@ -183,7 +183,8 @@ gql_connection_manager::logout()
         {"id", id},
         {"type", "start"},
         {"payload", {
-            {"authorization", m_token.empty() ? "" : "Bearer " + m_token},            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token},  
+            {"endpoint", "cli"},
             {"variables" , {}},
             {"extensions", {}},
             {"operationName", {}},
@@ -204,7 +205,8 @@ gql_connection_manager::query_platforms()
         {"id", id},
         {"type", "start"},
         {"payload", {            
-            {"authorization", m_token.empty() ? "" : "Bearer " + m_token},            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
             {"variables", {}},
             {"extensions", {}},
             {"operationName", {}},
