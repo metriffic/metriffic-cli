@@ -36,6 +36,7 @@ private:
 public:
     void set_jwt_token(const std::string& token);
     int login(const std::string& username, const std::string& password);
+    int logout();
     int query_platforms();
 
 private:

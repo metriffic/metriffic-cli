@@ -173,6 +173,29 @@ gql_connection_manager::login(const std::string& username, const std::string& pa
     return id;
 }
 
+int 
+gql_connection_manager::logout()
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "mutation {logout}";
+    json logout_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token},            
+            {"variables" , {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(logout_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+
 int
 gql_connection_manager::query_platforms() 
 {

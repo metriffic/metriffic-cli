@@ -53,15 +53,20 @@ struct Context
 
     void on_connection_close() 
     {
-        session.disable_prompt();
+        session.disable_input();
+        ios.stop();
+        gql_manager.stop();
         should_stop = true;
         std::cout<<"\nConnection is closed by the server."<<std::endl;
         exit(0);
     }
     void on_connection_fail(const std::string& reason) 
     {
-        session.disable_prompt();
+        session.disable_input();
+        ios.stop();
+        gql_manager.stop();
         should_stop = true;
+        
         std::cout<<"\nFailed to connect to the server: \""<<reason<<"\""<<std::endl;
         exit(0);
     }
@@ -179,7 +184,23 @@ int main()
                     context.logged_out();
                 }
             },
-            "Login to metriffic service" );
+            "Log in to metriffic service" );
+
+    context.cli.RootMenu() -> Insert(
+            "logout",
+            [](std::ostream& out){
+                    int msg_id = context.gql_manager.logout();
+                    nlohmann::json response = wait_for_response(msg_id);
+                    if(response["payload"]["data"] != nullptr) {
+                        std::cout<<"User "<<response["payload"]["data"]["logout"]<<" has successfully logged out..."<<std::endl;
+                        context.logged_out();
+                    } else 
+                    if(response["payload"]["errors"] != nullptr ) {
+                        std::cout<<"Failed to log out: "<<response["payload"]["errors"][0]["message"]<<std::endl;
+                    }
+            },
+            "Log out from the service" );
+
     context.cli.RootMenu() -> Insert(
             "show",
             [](std::ostream& out, const std::string& what){
@@ -199,7 +220,9 @@ int main()
     auto subMenu = std::make_unique< Menu >( "sub" );    
     subMenu -> Insert(
             "demo",
-            [](std::ostream& out){ out << "This is a sample!\n"; },
+            [](std::ostream& out, const std::vector<std::string>& cmdline){ 
+                out << "params: "<<cmdline.size()<<std::endl;     
+            },
             "Print a demo string" );
 
     auto subSubMenu = std::make_unique< Menu >( "subsub" );
