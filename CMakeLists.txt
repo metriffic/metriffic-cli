@@ -8,10 +8,13 @@ find_package(Boost 1.58.0 REQUIRED thread filesystem system chrono)
 
 include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
                     ${PROJECT_SOURCE_DIR}/tpt/cli/include
-                    ${PROJECT_SOURCE_DIR}/tpt/json/include)
+                    ${PROJECT_SOURCE_DIR}/tpt/json/include
+                    ${PROJECT_SOURCE_DIR}/tpt/cxxopts/include)
 
 add_executable(metriffic main.cpp 
-                         gql_connection_manager.cpp)
+                         context.cpp
+                         gql_connection_manager.cpp
+                         session_manager.cpp)
 target_link_libraries(metriffic ${Boost_LIBRARIES}
                                 pthread
                                 crypto

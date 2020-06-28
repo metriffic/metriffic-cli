@@ -33,7 +33,8 @@ namespace gql_consts
 };
 
 gql_connection_manager::gql_connection_manager() 
- : m_msg_id(0)
+ : m_msg_id(0),
+   m_should_stop(false)
 {
     m_endpoint.set_access_channels(websocketpp::log::alevel::none);
     m_endpoint.set_error_channels(websocketpp::log::elevel::none);
@@ -67,8 +68,7 @@ gql_connection_manager::start(const std::string& uri)
 {
     websocketpp::lib::error_code ec;
     m_connection = m_endpoint.get_connection(uri, ec);
-    //std::cout<<"Z: on_start"<<std::endl;
-
+    
     if (ec) {
         m_endpoint.get_alog().write(websocketpp::log::alevel::app,ec.message());
         return;
@@ -82,6 +82,7 @@ gql_connection_manager::start(const std::string& uri)
 void
 gql_connection_manager::stop()
 {
+    m_should_stop = true;
 }
 
 void 
@@ -143,8 +144,9 @@ gql_connection_manager::init_connection()
 }
 
 void 
-gql_connection_manager::set_jwt_token(const std::string& token)
+gql_connection_manager::set_authentication_data(const std::string& username, const std::string& token)
 {
+    m_username = username;
     m_token = token;
 }
 
@@ -217,6 +219,93 @@ gql_connection_manager::query_platforms()
     m_connection->send(allplatforms_msg.dump(), websocketpp::frame::opcode::text);
     return id;
 }
+
+int
+gql_connection_manager::subscribe_to_data_stream()
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "subscription{ subsData {message} }";
+    json allplatforms_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(allplatforms_msg.dump(), websocketpp::frame::opcode::text);
+    return id;    
+}
+
+
+
+int 
+gql_connection_manager::session_start(const std::string& name,
+                                      const std::string& platform,
+                                      const std::string& type,
+                                      const std::vector<std::string>& datasets,
+                                      int max_jobs,
+                                      std::string& command)
+{
+    int id = m_msg_id++;
+
+    std::stringstream ss;
+    ss << "mutation{ sessionCreate (platformId: 2 name: \"" << name << "\"";
+    ss << " type: \"" << type << "\"";
+    ss << " dockerImageId: 1 max_jobs: " << max_jobs;
+    ss << " datasets: \"[]\" command: \"[]\")";
+    ss << " { name, id, user{username}, dockerImage{name} } }";
+    json allplatforms_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(allplatforms_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int 
+gql_connection_manager::session_stop(const std::string& name)
+{
+
+}
+
+std::pair<bool, nlohmann::json> 
+gql_connection_manager::wait_for_response(int msg_id)
+{
+    nlohmann::json response;
+    while(!m_should_stop) {
+        std::list<nlohmann::json> incoming_messages;
+        pull_incoming_messages(incoming_messages);
+        if(!incoming_messages.empty()) {
+            for(auto msg : incoming_messages) {
+                //std::cout<<"msg "<<msg.dump(4)<<std::endl;
+                if(msg["id"] == msg_id) {                    
+                    return std::make_pair(true, msg) ;
+                }
+            }                       
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    // TBD: doublecheck this assignment...
+    m_should_stop = false;
+    return std::make_pair(false, nlohmann::json()) ;
+}
+
 
 } // namespace metriffic
 
