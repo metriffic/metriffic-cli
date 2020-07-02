@@ -1,21 +1,28 @@
-//#include <vector>
-//#include <string>
-//#include <memory>
 #include <cli/cli.h>
 #include <cxxopts.hpp>
 
-#include "session_manager.hpp"
+#include "session_commands.hpp"
 #include "context.hpp"
 
 namespace metriffic
 {
 
-session_manager::session_manager(Context& c)
+template<typename F>
+std::shared_ptr<cli::Menu> 
+create_menu_helper(const std::string& name,
+                   F f,
+                   const std::string& help,
+                   const std::vector<std::string>& par_desc) 
+{
+    return std::make_shared<cli::ShellLikeFunctionMenu<F>>(name, f, help, par_desc); 
+}
+
+session_commands::session_commands(Context& c)
  : m_context(c)
 {}
 
 std::shared_ptr<cli::Menu> 
-session_manager::create_menu()
+session_commands::create_menu()
 {
     m_menu = create_menu_helper(
         CMD_NAME,
@@ -74,7 +81,7 @@ session_manager::create_menu()
 }
 
 void 
-session_manager::start(std::ostream& out, int argc, char** argv) 
+session_commands::start(std::ostream& out, int argc, char** argv) 
 { 
     cxxopts::Options options(CMD_START_NAME, CMD_START_HELP);
     options.add_options()
@@ -164,16 +171,16 @@ session_manager::start(std::ostream& out, int argc, char** argv)
             out<<"Note: leaving this session (ctrl-c) will kill the container."<<std::endl;
             break;
         } //else 
-        //if(response.first) {
-        //    out<<"Got error in the data stream..."<<std::endl;
-        //    break;
-        //}
+        if(response.first) {
+            out<<"Got error in the data stream..."<<std::endl;
+            break;
+        }
     }
 
 }
 
 void 
-session_manager::stop(std::ostream& out, int argc, char** argv)
+session_commands::stop(std::ostream& out, int argc, char** argv)
 {
     cxxopts::Options options(CMD_STOP_NAME, CMD_STOP_HELP);
     //options.add_options()
@@ -189,7 +196,7 @@ session_manager::stop(std::ostream& out, int argc, char** argv)
 }  
 
 void 
-session_manager::status(std::ostream& out, int argc, char** argv)
+session_commands::status(std::ostream& out, int argc, char** argv)
 {
     cxxopts::Options options(CMD_STATUS_NAME, CMD_STATUS_HELP);
     //options.add_options()
@@ -203,37 +210,26 @@ session_manager::status(std::ostream& out, int argc, char** argv)
     //int msg_id = m_context.gql_manager.session_stop(result["name"].as<std::string>());
 }  
 
-template<typename F>
-std::shared_ptr<cli::Menu> 
-session_manager::create_menu_helper( 
-                    const std::string& name,
-                    F f,
-                    const std::string& help,
-                    const std::vector<std::string>& par_desc) 
-{
-    return std::make_shared<cli::ShellLikeFunctionMenu<F>>(name, f, help, par_desc); 
-}
-
 std::string 
-session_manager::print_menu_usage()
+session_commands::print_menu_usage()
 {
     return "Usage: " + CMD_NAME + " " + CMD_PARAMDESC[0]; 
 }  
 
 std::string 
-session_manager::print_start_usage()
+session_commands::print_start_usage()
 {
     return "Usage: " + CMD_START_NAME; 
 }  
 
 std::string 
-session_manager::print_stop_usage()
+session_commands::print_stop_usage()
 {
     return "Usage: " + CMD_STOP_NAME; 
 }  
 
 std::string 
-session_manager::print_status_usage()
+session_commands::print_status_usage()
 {
     return "Usage: " + CMD_STATUS_NAME; 
 }  

@@ -14,7 +14,8 @@ include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
 add_executable(metriffic main.cpp 
                          context.cpp
                          gql_connection_manager.cpp
-                         session_manager.cpp)
+                         session_commands.cpp
+                         authentication_commands.cpp)
 target_link_libraries(metriffic ${Boost_LIBRARIES}
                                 pthread
                                 crypto

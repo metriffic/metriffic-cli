@@ -288,21 +288,24 @@ std::pair<bool, nlohmann::json>
 gql_connection_manager::wait_for_response(int msg_id)
 {
     nlohmann::json response;
-    while(!m_should_stop) {
+    while(true) {
+        if(m_should_stop) {
+            m_should_stop = false;
+            return std::make_pair(true, nlohmann::json()) ;
+        }
         std::list<nlohmann::json> incoming_messages;
         pull_incoming_messages(incoming_messages);
         if(!incoming_messages.empty()) {
             for(auto msg : incoming_messages) {
                 //std::cout<<"msg "<<msg.dump(4)<<std::endl;
                 if(msg["id"] == msg_id) {                    
-                    return std::make_pair(true, msg) ;
+                    return std::make_pair(false, msg) ;
                 }
             }                       
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    // TBD: doublecheck this assignment...
-    m_should_stop = false;
+    // Note: it should never get here...
     return std::make_pair(false, nlohmann::json()) ;
 }
 

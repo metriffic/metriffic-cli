@@ -1,5 +1,5 @@
-#ifndef SESSION_HPP
-#define SESSION_HPP
+#ifndef SESSION_COMMANDS_HPP
+#define SESSION_COMMANDS_HPP
 
 #include <vector>
 #include <string>
@@ -11,10 +11,10 @@
 namespace metriffic
 {
 
-class session_manager
+class session_commands
 {    
 public:
-    session_manager(Context& c);
+    session_commands(Context& c);
 
     std::shared_ptr<cli::Menu> create_menu();
 
@@ -25,13 +25,6 @@ public:
     void status(std::ostream& out, int argc, char** argv);
 
 private:
-    template<typename F>
-    std::shared_ptr<cli::Menu> create_menu_helper( 
-                    const std::string& name,
-                    F f,
-                    const std::string& help,
-                    const std::vector<std::string>& par_desc);
-
     std::string print_menu_usage();
     std::string print_start_usage();
     std::string print_stop_usage();
@@ -65,4 +58,4 @@ private:
 
 } // namespace metriffic
 
-#endif //SESSION_HPP
+#endif //SESSION_COMMANDS_HPP
