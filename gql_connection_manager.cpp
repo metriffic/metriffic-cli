@@ -151,6 +151,36 @@ gql_connection_manager::set_authentication_data(const std::string& username, con
 }
 
 int 
+gql_connection_manager::registr(const std::string& username, const std::string& email,
+                                const std::string& password, const std::string& repassword)
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "mutation {register(username: \""
+        << username
+        << "\" email: \""
+        << email
+        << "\" password: \""
+        << password
+        << "\" cpassword: \""
+        << repassword
+        << "\") {id, username token}}";
+    json register_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {
+            {"variables" , {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(register_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int 
 gql_connection_manager::login(const std::string& username, const std::string& password)
 {
     int id = m_msg_id++;
@@ -159,7 +189,7 @@ gql_connection_manager::login(const std::string& username, const std::string& pa
         << username
         << "\" password: \""
         << password
-        << "\") {username email role createdAt isEnabled lastLoggedInAt currentState token}}";
+        << "\") {id username token}}";
     json login_msg = {
         {"id", id},
         {"type", "start"},

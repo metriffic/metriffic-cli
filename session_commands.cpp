@@ -163,7 +163,7 @@ session_commands::start(std::ostream& out, int argc, char** argv)
         if(data_msg["payload"]["data"] != nullptr) {
             //out<<data_msg["payload"]["data"]["subsData"]["message"].get<std::string>()<<std::endl;
             auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
-            out<<"Container ready, use the following to ssh:"<<std::endl;
+            out<<"Container ready, use the following crendials to ssh:"<<std::endl;
             out<<"\thostname:\t"<<msg["host"].get<std::string>()<<".metriffic.com"<<std::endl;            
             out<<"\tssh port:\t"<<msg["port"]<<std::endl;            
             out<<"\tusername:\t"<<msg["username"].get<std::string>()<<std::endl;            

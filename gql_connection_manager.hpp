@@ -38,6 +38,8 @@ private:
 
 public:
     void set_authentication_data(const std::string& username, const std::string& token);
+    int registr(const std::string& username, const std::string& email,
+                const std::string& password, const std::string& repassword);
     int login(const std::string& username, const std::string& password);
     int logout();
     int query_platforms();

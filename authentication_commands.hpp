@@ -15,11 +15,13 @@ class authentication_commands
 public:
     authentication_commands(Context& c);
 
+    std::shared_ptr<cli::Command> create_register_cmd();
     std::shared_ptr<cli::Command> create_login_cmd();
     std::shared_ptr<cli::Command> create_logout_cmd();
 
 private: 
     Context& m_context;
+    std::shared_ptr<cli::Command> m_register_cmd;
     std::shared_ptr<cli::Command> m_login_cmd;
     std::shared_ptr<cli::Command> m_logout_cmd;
 };
