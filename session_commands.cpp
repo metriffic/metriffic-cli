@@ -87,7 +87,7 @@ session_commands::start(std::ostream& out, int argc, char** argv)
     options.add_options()
         ("mode", "Run mode, interactive or batch", cxxopts::value<std::string>())
         ("p, platform", "Platform to run this session on", cxxopts::value<std::string>())
-        ("j, jobs", "Target number of simultaneious jobs", cxxopts::value<uint32_t>()->default_value("1"));
+        ("j, jobs", "Target number of simultaneous jobs", cxxopts::value<uint32_t>()->default_value("1"));
 
     options.parse_positional({"mode"});
 

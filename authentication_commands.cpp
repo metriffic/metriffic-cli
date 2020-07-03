@@ -63,7 +63,7 @@ authentication_commands::authentication_commands(Context& c)
 std::shared_ptr<cli::Command> 
 authentication_commands::create_register_cmd()
 {
-    m_login_cmd = create_cmd_helper(
+    m_register_cmd = create_cmd_helper(
         "register",
         [this](std::ostream& out, int, char**){ 
             m_context.session.disable_input();                
@@ -104,7 +104,7 @@ authentication_commands::create_register_cmd()
         },
         "Log in to metriffic service"
     );
-    return m_login_cmd;
+    return m_register_cmd;
 }
 
 std::shared_ptr<cli::Command> 
@@ -121,7 +121,7 @@ authentication_commands::create_login_cmd()
             // read the spurious return-char at the end 
             getchar();
             std::string password = capture_password();
-            std::cout << std::endl;
+
             int msg_id = m_context.gql_manager.login(username, password);
             m_context.session.enable_input();
 

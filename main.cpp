@@ -4,6 +4,7 @@
 
 #include "session_commands.hpp"
 #include "authentication_commands.hpp"
+#include "query_commands.hpp"
 #include "context.hpp"
 
 using namespace cli;
@@ -31,24 +32,6 @@ int main(int argc, char** argv)
 
     const std::string URI = "http://localhost:4000/graphql";
     context.start_communication(URI);
-
-    context.cli.RootMenu() -> Insert(
-            "show",
-            [](std::ostream& out, const std::string& what){
-                if(what == "platforms") {
-                    int msg_id = context.gql_manager.query_platforms();
-                    auto response = context.gql_manager.wait_for_response(msg_id);
-                    nlohmann::json show_msg = response.second;
-                    if(show_msg["payload"]["data"] != nullptr) {
-                        std::cout<<"response: "<<show_msg["payload"]["data"]<<std::endl;
-                    } else 
-                    if(show_msg["payload"]["errors"] != nullptr ) {
-                        std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
-                    }
-                }
-            },
-            "Show supported platforms" );
-
 
     context.cli.RootMenu() -> Insert(
             "message_stream",
@@ -80,6 +63,9 @@ int main(int argc, char** argv)
     context.cli.RootMenu() -> Insert(auth_cmds.create_register_cmd());
     context.cli.RootMenu() -> Insert(auth_cmds.create_login_cmd());
     context.cli.RootMenu() -> Insert(auth_cmds.create_logout_cmd());
+
+    metriffic::query_commands query_cmds(context);
+    context.cli.RootMenu() -> Insert(query_cmds.create_show_cmd());
 
     metriffic::session_commands current_session(context);
     context.cli.RootMenu() -> Insert(current_session.create_menu());

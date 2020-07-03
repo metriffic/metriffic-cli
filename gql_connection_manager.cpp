@@ -251,6 +251,84 @@ gql_connection_manager::query_platforms()
 }
 
 int
+gql_connection_manager::query_docker_images(const std::string& platform) 
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "query{ allDockerImages(platformName: \""<< platform <<"\") { id name platform{name} } }";
+    json alldockerimages_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(alldockerimages_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int
+gql_connection_manager::query_sessions(const std::string& platform, 
+                                       const std::vector<std::string>& statuses) 
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "query{ allSessions(platformName: \""<< platform <<"\" "
+       << "status: [ ";
+    for(const auto& s : statuses) {
+        ss << "\"" << s << "\", ";
+    }   
+    ss << "]) { id name state } }";
+    json allsessions_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(allsessions_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int
+gql_connection_manager::query_jobs(const std::string& platform, const std::string& session) 
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "query{ allJobs(platformName: \""<< platform <<"\" ";
+    ss << "sessionName: \""<< session <<"\")";
+    ss << " { id name } }";
+    json alljobs_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(alljobs_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+
+int
 gql_connection_manager::subscribe_to_data_stream()
 {
     int id = m_msg_id++;

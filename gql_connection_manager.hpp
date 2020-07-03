@@ -43,6 +43,10 @@ public:
     int login(const std::string& username, const std::string& password);
     int logout();
     int query_platforms();
+    int query_docker_images(const std::string& platform);
+    int query_sessions(const std::string& platform, 
+                       const std::vector<std::string>& statuses);
+    int query_jobs(const std::string& platform, const std::string& session);
     int session_start(const std::string& name,
                       const std::string& platform,
                       const std::string& type,

@@ -15,7 +15,8 @@ add_executable(metriffic main.cpp
                          context.cpp
                          gql_connection_manager.cpp
                          session_commands.cpp
-                         authentication_commands.cpp)
+                         authentication_commands.cpp
+                         query_commands.cpp)
 target_link_libraries(metriffic ${Boost_LIBRARIES}
                                 pthread
                                 crypto
