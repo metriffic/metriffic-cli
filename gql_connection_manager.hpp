@@ -50,6 +50,7 @@ public:
     int session_start(const std::string& name,
                       const std::string& platform,
                       const std::string& type,
+                      const std::string& dockerimage,
                       const std::vector<std::string>& datasets,
                       int max_jobs,
                       std::string& command);

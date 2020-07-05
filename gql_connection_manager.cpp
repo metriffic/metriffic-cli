@@ -357,6 +357,7 @@ int
 gql_connection_manager::session_start(const std::string& name,
                                       const std::string& platform,
                                       const std::string& type,
+                                      const std::string& dockerimage,
                                       const std::vector<std::string>& datasets,
                                       int max_jobs,
                                       std::string& command)
@@ -364,9 +365,12 @@ gql_connection_manager::session_start(const std::string& name,
     int id = m_msg_id++;
 
     std::stringstream ss;
-    ss << "mutation{ sessionCreate (platformId: 2 name: \"" << name << "\"";
+    ss << "mutation{ sessionCreate (";
+    ss << " platform: \"" << platform << "\"";
+    ss << " name: \"" << name << "\"";
     ss << " type: \"" << type << "\"";
-    ss << " dockerImageId: 1 max_jobs: " << max_jobs;
+    ss << " dockerimage: \"" << dockerimage << "\"";
+    ss << " max_jobs: " << max_jobs;
     ss << " datasets: \"[]\" command: \"[]\")";
     ss << " { name, id, user{username}, dockerImage{name} } }";
     json sstart_msg = {

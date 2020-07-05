@@ -28,7 +28,8 @@ session_commands::print_session_usage(std::ostream& out)
 }
 
 void
-session_commands::session_start(std::ostream& out, const std::string& name, 
+session_commands::session_start(std::ostream& out, 
+                                const std::string& name, const std::string& dockerimage,
                                 const std::string& mode, const std::string& platform)
 {
     std::vector<std::string> datasets = {};
@@ -38,6 +39,7 @@ session_commands::session_start(std::ostream& out, const std::string& name,
                                 name,
                                 platform,
                                 mode,
+                                dockerimage,
                                 datasets,
                                 max_jobs,
                                 command
@@ -129,6 +131,7 @@ session_commands::create_session_cmd()
                 ("command", CMD_SESSION_PARAMDESC[0], cxxopts::value<std::string>())
                 ("mode", CMD_SESSION_PARAMDESC[1], cxxopts::value<std::string>())
                 ("p, platform", CMD_SESSION_PARAMDESC[2], cxxopts::value<std::string>())
+                ("d, docker-image", CMD_SESSION_PARAMDESC[4], cxxopts::value<std::string>())
                 ("n, name", CMD_SESSION_PARAMDESC[3], cxxopts::value<std::string>());
 
             options.parse_positional({"command", "mode"});
@@ -143,7 +146,9 @@ session_commands::create_session_cmd()
                     return;
                 }
                 auto command = result["command"].as<std::string>();
-                auto mode = std::string("");
+                std::string mode = "";
+                std::string platform = "";
+                std::string dockerimage = "";
                 if(command == "start") {
                     if(result.count("mode") != 1) {
                         out << CMD_SESSION_NAME << ": 'mode' (either 'interactive' or 'batch') "
@@ -156,6 +161,18 @@ session_commands::create_session_cmd()
                             << "Supported modes are: 'interactive', 'batch'." << std::endl;
                         return;
                     }
+                    if(result.count("platform") != 1) {
+                        out << CMD_SESSION_NAME << ": '-d|--docker-image' is a mandatory argument for starting a session." << std::endl;
+                        return;
+                    }
+                    platform = result["platform"].as<std::string>();
+                    if(result.count("docker-image") != 1) {
+                        out << CMD_SESSION_NAME << ": '-d|--docker-image' is a mandatory argument for starting a session." << std::endl;
+                        return;
+                    }
+                    dockerimage = result["docker-image"].as<std::string>();
+                
+                    
                 }
 
                 std::string name = "";
@@ -166,13 +183,8 @@ session_commands::create_session_cmd()
                     return;
                 }
 
-                std::string platform = "";
-                if(result.count("platform")) {
-                    platform = result["platform"].as<std::string>();
-                }
-
                 if(command == "start") {
-                    session_start(out, name, mode, platform);
+                    session_start(out, name, dockerimage, mode, platform);
                 } else 
                 if(command == "stop") {
                     session_stop(out, name);

@@ -19,7 +19,9 @@ public:
 
 private:
     void print_session_usage(std::ostream& out);
-    void session_start(std::ostream& out, const std::string& name, const std::string& mode, const std::string& platform);
+    void session_start(std::ostream& out, 
+                       const std::string& name, const std::string& dockerimage, 
+                       const std::string& mode, const std::string& platform);
     void session_stop(std::ostream& out, const std::string& name);
     void session_status(std::ostream& out, const std::string& name);
     
@@ -33,7 +35,8 @@ private:
     const std::vector<std::string> CMD_SESSION_PARAMDESC = {
         {"<command>: mandatory parameter, session request to execute. Can be either 'start', 'stop' or 'status'"},
         {"   <mode>: mandatory for 'start' command, specifies the type of session to start."},
-        {"   -p|--platform <name platform>: name of the platform to start mission on."},
+        {"   -p|--platform <platform name>: name of the platform to start mission on."},
+        {"   -d|--docker-image <docker image>: docker image to instantiate on the target board."},
         {"-n|--name <name of the session>: Name of the session to perform operation on."},
     };
 };
