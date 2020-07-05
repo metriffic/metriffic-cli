@@ -15,45 +15,27 @@ class session_commands
 {    
 public:
     session_commands(Context& c);
-
-    std::shared_ptr<cli::Menu> create_menu();
-
-    void start(std::ostream& out, int argc, char** argv);
-
-    void stop(std::ostream& out, int argc, char** argv);
-
-    void status(std::ostream& out, int argc, char** argv);
+    std::shared_ptr<cli::Command> create_session_cmd();
 
 private:
-    std::string print_menu_usage();
-    std::string print_start_usage();
-    std::string print_stop_usage();
-    std::string print_status_usage();
-
-    std::string m_name;
-    std::string m_platform;
-    std::string m_mode;
-    std::string m_command;
-    int m_max_jobs;
-    std::vector<std::string> m_datasets;
-
+    void print_session_usage(std::ostream& out);
+    void session_start(std::ostream& out, const std::string& name, const std::string& mode, const std::string& platform);
+    void session_stop(std::ostream& out, const std::string& name);
+    void session_status(std::ostream& out, const std::string& name);
+    
 private: 
     Context& m_context;
-    std::shared_ptr<cli::Menu> m_menu;
+    std::shared_ptr<cli::Command> m_session_cmd;
 
 private: 
-    const std::string CMD_NAME = "session";
-    const std::string CMD_HELP = "Session management.";
-    const std::vector<std::string> CMD_PARAMDESC = {
-        {"-n|--name <name of the session to start or switch to>"}
+    const std::string CMD_SESSION_NAME = "session";
+    const std::string CMD_SESSION_HELP = "Work with session...";
+    const std::vector<std::string> CMD_SESSION_PARAMDESC = {
+        {"<command>: mandatory parameter, session request to execute. Can be either 'start', 'stop' or 'status'"},
+        {"   <mode>: mandatory for 'start' command, specifies the type of session to start."},
+        {"   -p|--platform <name platform>: name of the platform to start mission on."},
+        {"-n|--name <name of the session>: Name of the session to perform operation on."},
     };
-
-    const std::string CMD_START_NAME = "start";
-    const std::string CMD_START_HELP = "Start the session.";
-    const std::string CMD_STOP_NAME = "stop";
-    const std::string CMD_STOP_HELP = "Stop the current session.";
-    const std::string CMD_STATUS_NAME = "status";
-    const std::string CMD_STATUS_HELP = "Get the status of the session.";
 };
 
 } // namespace metriffic

@@ -67,8 +67,8 @@ int main(int argc, char** argv)
     metriffic::query_commands query_cmds(context);
     context.cli.RootMenu() -> Insert(query_cmds.create_show_cmd());
 
-    metriffic::session_commands current_session(context);
-    context.cli.RootMenu() -> Insert(current_session.create_menu());
+    metriffic::session_commands session_cmds(context);
+    context.cli.RootMenu() -> Insert(session_cmds.create_session_cmd());
 
     context.session.ExitAction(
         [](auto& out) // session exit action
