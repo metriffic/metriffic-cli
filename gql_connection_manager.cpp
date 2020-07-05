@@ -369,7 +369,7 @@ gql_connection_manager::session_start(const std::string& name,
     ss << " dockerImageId: 1 max_jobs: " << max_jobs;
     ss << " datasets: \"[]\" command: \"[]\")";
     ss << " { name, id, user{username}, dockerImage{name} } }";
-    json allplatforms_msg = {
+    json sstart_msg = {
         {"id", id},
         {"type", "start"},
         {"payload", {            
@@ -382,14 +382,33 @@ gql_connection_manager::session_start(const std::string& name,
             }
         },
     };
-    m_connection->send(allplatforms_msg.dump(), websocketpp::frame::opcode::text);
+    m_connection->send(sstart_msg.dump(), websocketpp::frame::opcode::text);
     return id;
 }
 
 int 
 gql_connection_manager::session_stop(const std::string& name)
 {
+    int id = m_msg_id++;
 
+    std::stringstream ss;
+    ss << "mutation{ sessionUpdate ( name: \"" << name << "\" state: \"CANCELED\" ) {id, name} }";
+    
+    json sstop_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(sstop_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
 }
 
 std::pair<bool, nlohmann::json> 
