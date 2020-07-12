@@ -5,6 +5,8 @@
 #include <cli/cli.h>
 #include <nlohmann/json.hpp>
 #include "gql_connection_manager.hpp"
+#include "settings_manager.hpp"
+#include "ssh_manager.hpp"
 
 
 namespace metriffic
@@ -34,6 +36,10 @@ struct Context
 
     // GQL/Metriffic service related
     metriffic::gql_connection_manager gql_manager;
+
+    metriffic::settings_manager settings;
+
+    metriffic::ssh_manager ssh;
 
 private:
     std::thread gql_manager_thread;

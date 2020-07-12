@@ -19,6 +19,9 @@ public:
     std::shared_ptr<cli::Command> create_login_cmd();
     std::shared_ptr<cli::Command> create_logout_cmd();
 
+private:
+    void initialize_new_user(const std::string& username);
+
 private: 
     Context& m_context;
     std::shared_ptr<cli::Command> m_register_cmd;

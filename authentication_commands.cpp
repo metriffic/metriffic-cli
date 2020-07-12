@@ -1,5 +1,8 @@
-#include "authentication_commands.hpp"
 #include <regex>
+#include <fstream>
+#include <experimental/filesystem>
+
+#include "authentication_commands.hpp"
 
 namespace metriffic
 {
@@ -60,6 +63,12 @@ authentication_commands::authentication_commands(Context& c)
  : m_context(c)
 {}
 
+void 
+authentication_commands::initialize_new_user(const std::string& username)
+{
+    m_context.settings.create_user(username);
+}
+
 std::shared_ptr<cli::Command> 
 authentication_commands::create_register_cmd()
 {
@@ -96,6 +105,7 @@ authentication_commands::create_register_cmd()
             if(register_msg["payload"]["data"] != nullptr) {
                 std::cout<<"Registration is successful!"<<std::endl;
                 m_context.logged_in(register_msg["payload"]["data"]["register"]);
+                initialize_new_user(username);
             } else 
             if(register_msg["payload"]["errors"] != nullptr ) {
                 std::cout<<"Registration failed: "<<register_msg["payload"]["errors"][0]["message"]<<std::endl;
