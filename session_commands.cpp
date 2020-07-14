@@ -74,16 +74,22 @@ session_commands::session_start(std::ostream& out,
             return;
         } else 
         if(data_msg["payload"]["data"] != nullptr) {
-            //out<<data_msg["payload"]["data"]["subsData"]["message"].get<std::string>()<<std::endl;
             auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
-            out<<"Container ready, use the following crendials to ssh:"<<std::endl;
-            out<<"\thostname:\t"<<msg["host"].get<std::string>()<<".metriffic.com"<<std::endl;            
-            out<<"\tssh port:\t"<<msg["port"]<<std::endl;            
-            out<<"\tusername:\t"<<msg["username"].get<std::string>()<<std::endl;            
-            out<<"\tpassword:\t"<<msg["password"].get<std::string>()<<std::endl;            
-            out<<"Note: leaving this session (ctrl-c) will kill the container."<<std::endl;
+
+            if(mode == MODE_INTERACTIVE) {
+                auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
+                                                                "ssh_user", "ssh_user",
+                                                                msg["host"].get<std::string>(),
+                                                                msg["port"].get<int>());   
+
+
+                out<<"Container ready, use the following to ssh:"<<std::endl;
+                out<<"\tcommand:\tssh root@localhost -p"<<tunnel_ret.second<<std::endl;
+                out<<"\tpassword:\t"<<msg["password"].get<std::string>()<<std::endl;            
+                out<<"Note: stopping this session will kill the connection and running container."<<std::endl;
+            }
             break;
-        } //else 
+        }  
         if(response.first) {
             out<<"Got error in the data stream..."<<std::endl;
             break;
@@ -94,6 +100,7 @@ session_commands::session_start(std::ostream& out,
 void
 session_commands::session_stop(std::ostream& out, const std::string& name)
 {
+    m_context.ssh.stop_ssh_tunnel(name);
     int msg_id = m_context.gql_manager.session_stop(name);
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
@@ -151,14 +158,14 @@ session_commands::create_session_cmd()
                 std::string dockerimage = "";
                 if(command == "start") {
                     if(result.count("mode") != 1) {
-                        out << CMD_SESSION_NAME << ": 'mode' (either 'interactive' or 'batch') "
+                        out << CMD_SESSION_NAME << ": 'mode' (either '" << MODE_INTERACTIVE << "' or '" << MODE_BATCH << "') "
                             << "is a mandatory argument." << std::endl;
                         return;
                     }
                     mode = result["mode"].as<std::string>();
-                    if(mode != "interactive" && mode != "batch") {
-                        out << CMD_SESSION_NAME << ": Unsupported session mode. "
-                            << "Supported modes are: 'interactive', 'batch'." << std::endl;
+                    if(mode != MODE_INTERACTIVE && mode != MODE_BATCH) {
+                        out << CMD_SESSION_NAME << ": unsupported session mode, "
+                            << "supported modes are: '" << MODE_INTERACTIVE << "', '" << MODE_BATCH << "'." << std::endl;
                         return;
                     }
                     if(result.count("platform") != 1) {
@@ -192,8 +199,8 @@ session_commands::create_session_cmd()
                 if(command == "status") {
                     session_status(out, name);
                 } else {
-                    out << CMD_SESSION_NAME << ": Unsupported session command. "
-                        << "Supported commands are: 'start', 'stop', 'status'." << std::endl;
+                    out << CMD_SESSION_NAME << ": unsupported session command, "
+                        << "supported commands are: 'start', 'stop', 'status'." << std::endl;
                     return;
                 }
             } catch (std::exception& e) {

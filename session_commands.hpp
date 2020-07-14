@@ -30,6 +30,9 @@ private:
     std::shared_ptr<cli::Command> m_session_cmd;
 
 private: 
+    const std::string MODE_INTERACTIVE = "interactive";
+    const std::string MODE_BATCH       = "batch";
+
     const std::string CMD_SESSION_NAME = "session";
     const std::string CMD_SESSION_HELP = "Work with session...";
     const std::vector<std::string> CMD_SESSION_PARAMDESC = {
