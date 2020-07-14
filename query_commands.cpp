@@ -126,7 +126,7 @@ query_commands::create_show_cmd()
                 std::vector<std::string> filter;
                 if(result.count("filter")) {
                     if(items != "sessions") {
-                        out << CMD_SHOW_NAME << ": Option --filter can be used when querying sessions only."<< std::endl;
+                        out << CMD_SHOW_NAME << ": option --filter can be used when querying sessions only."<< std::endl;
                         return;
                     }
                     std::string str_filt = result["filter"].as<std::string>();
@@ -137,7 +137,7 @@ query_commands::create_show_cmd()
                     std::sregex_token_iterator end;
                     std::vector<std::string> parsed_filt(begin, end);
                     if(parsed_filt.size() < 2 ||  parsed_filt[0] != "status") {
-                        out << CMD_SHOW_NAME << ": The argument for --filter must be in status:<A|B|...> format."<< std::endl;
+                        out << CMD_SHOW_NAME << ": the argument for --filter must be in status:<A|B|...> format."<< std::endl;
                         return;
                     }
                     filter.assign(parsed_filt.begin()+1, parsed_filt.end());
@@ -161,8 +161,8 @@ query_commands::create_show_cmd()
                     std::string session;
                     show_jobs(platform, session);
                 } else {
-                    out << CMD_SHOW_NAME << ": Unsupported item type. "
-                        << "Supported types are: 'platforms', 'docker-images', 'sessions', 'jobs'." << std::endl;
+                    out << CMD_SHOW_NAME << ": unsupported item type, "
+                        << "supported types are: 'platforms', 'docker-images', 'sessions', 'jobs'." << std::endl;
                     return;
                 }
             } catch (std::exception& e) {
