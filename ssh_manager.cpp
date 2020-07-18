@@ -49,13 +49,21 @@ namespace metriffic
 ssh_manager::ssh_tunnel::ssh_tunnel(
                const std::string& username,
                const std::string& password,
-               const std::string& desthost,
-               const unsigned int destport) 
+               const std::string& local_host,
+               std::pair<unsigned int, unsigned int> local_port_range,
+               const std::string& bastion_host,
+               const unsigned int bastion_port,
+               const std::string& dest_host,
+               const unsigned int dest_port) 
   : m_should_stop(false),
     m_username(username),
     m_password(password),
-    m_desthost(desthost),
-    m_destport(destport),
+    m_local_host(local_host),
+    m_local_port_range(local_port_range),
+    m_bastion_host(bastion_host),
+    m_bastion_port(bastion_port),
+    m_dest_host(dest_host),
+    m_dest_port(dest_port),
     m_channel(NULL),
     m_sock(-1),
     m_listensock(-1),
@@ -66,11 +74,9 @@ ssh_manager::ssh_tunnel::~ssh_tunnel()
 {
 }
 
-std::pair<bool, unsigned int> 
+ssh_manager::ssh_tunnel_ret
 ssh_manager::ssh_tunnel::init()
 {
-    const std::string SERVER_IP = "127.0.0.1";
-    const std::string LOCAL_LISTEN_IP = "127.0.0.1";
     unsigned int LOCAL_LISTEN_PORT_START = 3000;
     unsigned int LOCAL_LISTEN_PORT_END = 4000;
 
@@ -78,19 +84,19 @@ ssh_manager::ssh_tunnel::init()
     m_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if(m_sock == -1) {        
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
  
     m_sin.sin_family = AF_INET;
-    m_sin.sin_addr.s_addr = inet_addr(SERVER_IP.c_str());
+    m_sin.sin_addr.s_addr = inet_addr(m_bastion_host.c_str());
     if(INADDR_NONE == m_sin.sin_addr.s_addr) {
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
     m_sin.sin_port = htons(22);
     if(connect(m_sock, (struct sockaddr*)(&m_sin),
                sizeof(struct sockaddr_in)) != 0) {
         //std::cout << "Error: failed to connect!" << std::endl;
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
  
     // Create a session instance 
@@ -98,7 +104,7 @@ ssh_manager::ssh_tunnel::init()
 
     if(!m_session) {
         //std::cout << "Error: could not initialize SSH session!" << std::endl;
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
  
     // Start it up. This will trade welcome banners, exchange keys,
@@ -107,7 +113,7 @@ ssh_manager::ssh_tunnel::init()
 
     if(rc) {
         //std::cout << "Error: failed to start up SSH session: " << rc <<std::endl;
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
  
     // At this point we havn't yet authenticated.  The first thing to do
@@ -123,7 +129,7 @@ ssh_manager::ssh_tunnel::init()
  
     if(libssh2_userauth_password(m_session, m_username.c_str(), m_password.c_str())) {
         //std::cout << "Error: authentication by password failed!" << std::endl;
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
     //std::cout << "Authentication by password succeeded!" << std::endl;
 
@@ -131,21 +137,21 @@ ssh_manager::ssh_tunnel::init()
     m_listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(m_listensock == -1) {
         //error("socket");
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
 
     m_sockopt = 1;
     setsockopt(m_listensock, SOL_SOCKET, SO_REUSEADDR, &m_sockopt, sizeof(m_sockopt));
     
-    unsigned int listen_port = LOCAL_LISTEN_PORT_START-1;
+    unsigned int listen_port = m_local_port_range.first-1;
     m_sin.sin_family = AF_INET;
-    m_sin.sin_addr.s_addr = inet_addr(LOCAL_LISTEN_IP.c_str());
+    m_sin.sin_addr.s_addr = inet_addr(m_local_host.c_str());
     socklen_t sinlen = sizeof(m_sin);
     if(INADDR_NONE == m_sin.sin_addr.s_addr) {
         //perror("inet_addr");
-        return {false, -1};
+        return ssh_tunnel_ret(false);
     }
-    while(listen_port++ < LOCAL_LISTEN_PORT_END) {
+    while(listen_port++ < m_local_port_range.second) {
         m_sin.sin_port = htons(listen_port);
         if(-1 == bind(m_listensock, (struct sockaddr *)&m_sin, sinlen)) {
             //perror("bind");
@@ -158,7 +164,7 @@ ssh_manager::ssh_tunnel::init()
         break;
     }
 //
-    return {true, listen_port};
+    return ssh_tunnel_ret(true, listen_port, m_dest_host);
 }
 
 void 
@@ -214,7 +220,7 @@ ssh_manager::ssh_tunnel::run()
                     libssh2_channel_free(m_channel);
                 }
                 m_channel = libssh2_channel_direct_tcpip_ex(m_session, 
-                                                            m_desthost.c_str(), m_destport, 
+                                                            m_dest_host.c_str(), m_dest_port, 
                                                             shost, sport);
                 if(!m_channel) {
                     break;
@@ -319,22 +325,27 @@ ssh_manager::~ssh_manager()
     libssh2_exit();
 }
 
-std::pair<bool, unsigned int> 
-ssh_manager::start_ssh_tunnel(const std::string& session_name,
-                              const std::string& username,
-                              const std::string& password,
+ssh_manager::ssh_tunnel_ret 
+ssh_manager::start_ssh_tunnel(const std::string& session_name,                              
                               const std::string& desthost,
                               const unsigned int destport)
 {
     //std::cout<<"Starting ssh tunnel for session \'"<<session_name<<"\'... ";
-    auto tunnel = std::make_unique<ssh_tunnel>(username, password, desthost, destport);
-    auto ret = tunnel->init();
-    if(ret.first) {
+    auto tunnel = std::make_unique<ssh_tunnel>(BASTION_SSH_USERNAME, 
+                                               BASTION_SSH_PASSWORD, 
+                                               LOCAL_SSH_HOSTNAME,
+                                               std::make_pair(LOCAL_SSH_PORT_START, LOCAL_SSH_PORT_START+1000),
+                                               BASTION_SSH_HOSTNAME,
+                                               BASTION_SSH_PORT,                                               
+                                               desthost, 
+                                               destport);
+    auto tunnel_ret = tunnel->init();
+    if(tunnel_ret.status) {
         tunnel->run();
         m_session_tunnels.insert(std::make_pair(session_name, std::move(tunnel)));
         //std::cout<<"done."<<std::endl;
     }
-    return ret;
+    return tunnel_ret;
 }
 
 void
