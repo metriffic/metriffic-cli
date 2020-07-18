@@ -34,7 +34,7 @@ private:
     const std::string MODE_BATCH       = "batch";
 
     const std::string CMD_SESSION_NAME = "session";
-    const std::string CMD_SESSION_HELP = "Work with session...";
+    const std::string CMD_SESSION_HELP = "managing session...";
     const std::vector<std::string> CMD_SESSION_PARAMDESC = {
         {"<command>: mandatory parameter, session request to execute. Can be either 'start', 'stop' or 'status'"},
         {"   <mode>: mandatory for 'start' command, specifies the type of session to start."},

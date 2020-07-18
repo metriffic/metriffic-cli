@@ -48,14 +48,14 @@ session_commands::session_start(std::ostream& out,
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
         if(data_msg["type"] == "error") {
-            out<<"Error: likely an invalid query..."<<std::endl;
+            out<<"error: likely an invalid query..."<<std::endl;
             return;
         } else 
         if(data_msg["payload"]["errors"] != nullptr) {
-            out<<"Error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else {
-            out<<"Bringing up the requested ssh container, this may take a while... (use ctrl-c to cancel) "<<std::endl;
+            out<<"bringing up the requested ssh container, this may take a while... (use ctrl-c to cancel) "<<std::endl;
             break;
         }
     }
@@ -66,32 +66,35 @@ session_commands::session_start(std::ostream& out,
         nlohmann::json data_msg = response.second;
         //out<<data_msg.dump(4)<<std::endl;
         if(data_msg["type"] == "error") {
-            out<<"Got error in the data stream (abnormal query?)..."<<std::endl;
+            out<<"got error in the data stream (abnormal query?)..."<<std::endl;
             return;
         } else 
         if(data_msg["payload"]["errors"] != nullptr) {
-            out<<"Error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else 
         if(data_msg["payload"]["data"] != nullptr) {
             auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
 
             if(mode == MODE_INTERACTIVE) {
+                out<<"opening ssh tunnel... ";
                 auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
-                                                                "ssh_user", "ssh_user",
-                                                                msg["host"].get<std::string>(),
-                                                                msg["port"].get<int>());   
-
-
-                out<<"Container ready, use the following to ssh:"<<std::endl;
-                out<<"\tcommand:\tssh root@localhost -p"<<tunnel_ret.second<<std::endl;
-                out<<"\tpassword:\t"<<msg["password"].get<std::string>()<<std::endl;            
-                out<<"Note: stopping this session will kill the connection and running container."<<std::endl;
+                                                                 msg["host"].get<std::string>(),
+                                                                 msg["port"].get<int>());   
+                if(tunnel_ret.status) {
+                    out << "done." << std::endl;
+                    out << "container is ready, use the following to ssh:" << std::endl;
+                    out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
+                    out << "\tpassword:\t" << msg["password"].get<std::string>() << std::endl;            
+                    out << "note: stopping this session will kill the connection and running container." << std::endl;
+                } else {
+                    out << "failed." << std::endl;
+                }
             }
             break;
         }  
         if(response.first) {
-            out<<"Got error in the data stream..."<<std::endl;
+            out<<"got error in the data stream..."<<std::endl;
             break;
         }
     }
@@ -106,14 +109,14 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
         if(data_msg["type"] == "error") {
-            out<<"Error: likely an invalid query..."<<std::endl;
+            out<<"error: likely an invalid query..."<<std::endl;
             return;
         } else 
         if(data_msg["payload"]["errors"] != nullptr) {
-            out<<"Error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else {
-            out<<"Session '"<<data_msg["payload"]["data"]["sessionUpdate"]["name"].get<std::string>()<<"' is canceled."<<std::endl;
+            out<<"session '"<<data_msg["payload"]["data"]["sessionUpdate"]["name"].get<std::string>()<<"' is canceled."<<std::endl;
             break;
         }
     }
