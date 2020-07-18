@@ -36,15 +36,17 @@ Context::start_communication(const std::string& URI)
 }
 
 void 
-Context::logged_in(const nlohmann::json& data) 
+Context::logged_in(const std::string& uname, const std::string& token) 
 {
-    gql_manager.set_authentication_data(data["username"], data["token"]);
+    username = uname;
+    gql_manager.set_authentication_data(token);
 }
 
 void 
 Context::logged_out()
 {
-    gql_manager.set_authentication_data("", "");
+    gql_manager.set_authentication_data("");
+    username = "";
 }
 
 void 

@@ -37,7 +37,7 @@ private:
     void init_connection();    
 
 public:
-    void set_authentication_data(const std::string& username, const std::string& token);
+    void set_authentication_data(const std::string& token);
     int registr(const std::string& username, const std::string& email,
                 const std::string& password, const std::string& repassword);
     int login(const std::string& username, const std::string& password);
@@ -67,7 +67,6 @@ private:
     client m_endpoint;
     client::connection_ptr m_connection;
     
-    std::string     m_username;
     std::string     m_token;
 
     std::mutex      m_mutex;

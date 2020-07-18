@@ -144,9 +144,8 @@ gql_connection_manager::init_connection()
 }
 
 void 
-gql_connection_manager::set_authentication_data(const std::string& username, const std::string& token)
+gql_connection_manager::set_authentication_data(const std::string& token)
 {
-    m_username = username;
     m_token = token;
 }
 

@@ -104,7 +104,8 @@ authentication_commands::create_register_cmd()
             nlohmann::json& register_msg  = response.second;
             if(register_msg["payload"]["data"] != nullptr) {
                 std::cout<<"Registration is successful!"<<std::endl;
-                m_context.logged_in(register_msg["payload"]["data"]["register"]);
+                auto data = register_msg["payload"]["data"]["register"];
+                m_context.logged_in(data["username"], data["token"]);
                 initialize_new_user(username);
             } else 
             if(register_msg["payload"]["errors"] != nullptr ) {
@@ -139,7 +140,8 @@ authentication_commands::create_login_cmd()
             nlohmann::json& login_msg  = response.second;
             if(login_msg["payload"]["data"] != nullptr) {
                 std::cout<<"Login successful!"<<std::endl;
-                m_context.logged_in(login_msg["payload"]["data"]["login"]);
+                auto& data = login_msg["payload"]["data"]["login"];
+                m_context.logged_in(data["username"], data["token"]);
             } else 
             if(login_msg["payload"]["errors"] != nullptr ) {
                 std::cout<<"Login failed: "<<login_msg["payload"]["errors"][0]["message"]<<std::endl;

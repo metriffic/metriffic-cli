@@ -19,7 +19,7 @@ struct Context
     
     void start_communication(const std::string& URI);
 
-    void logged_in(const nlohmann::json& data);
+    void logged_in(const std::string& username, const std::string& password);
     void logged_out();
 
     void on_connection_close(); 
@@ -40,6 +40,8 @@ struct Context
     metriffic::settings_manager settings;
 
     metriffic::ssh_manager ssh;
+
+    std::string username;
 
 private:
     std::thread gql_manager_thread;
