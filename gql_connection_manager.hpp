@@ -55,6 +55,7 @@ public:
                       int max_jobs,
                       std::string& command);
     int session_stop(const std::string& name);
+    int sync_request();
     int subscribe_to_data_stream();
 
     std::pair<bool, nlohmann::json> wait_for_response(int msg_id);

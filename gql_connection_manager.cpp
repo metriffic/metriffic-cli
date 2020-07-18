@@ -414,6 +414,27 @@ gql_connection_manager::session_stop(const std::string& name)
     return id;
 }
 
+int
+gql_connection_manager::sync_request() 
+{
+    int id = m_msg_id++;
+    json rsync_request_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", "query{ rsyncRequest }"}
+            }
+        },
+    };
+    m_connection->send(rsync_request_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
 std::pair<bool, nlohmann::json> 
 gql_connection_manager::wait_for_response(int msg_id)
 {

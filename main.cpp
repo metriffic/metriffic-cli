@@ -5,30 +5,35 @@
 #include "session_commands.hpp"
 #include "authentication_commands.hpp"
 #include "query_commands.hpp"
+#include "workspace_commands.hpp"
 #include "context.hpp"
 
 using namespace cli;
 
 metriffic::Context context;
 
-void signal_callback_handler(int signum) 
+void sigint_callback_handler(int signum) 
 {
-    if(context.session.IsRunningCommand()) {        
+    if(context.session.RunningCommand()) {        
+        context.session.CancelRunningCommand();
         context.gql_manager.stop();
     } else
-    if(context.session.Current()->Parent()) {
-        context.session.SetCurrent(context.session.Current()->Parent());
+    if(context.session.CurrentMenu()->Parent()) {
+        context.session.SetCurrentMenu(context.session.CurrentMenu()->Parent());
         context.session.OutStream()<<std::endl;
         context.session.Prompt();
     } else {
         std::cout<<"\rUse exit to quit..."<<std::endl;
     }
 }
-
+void sigpipe_callback_handler(int signum) 
+{
+}
 
 int main(int argc, char** argv)
 {
-    signal(SIGINT, signal_callback_handler);
+    signal(SIGINT, sigint_callback_handler);
+    signal(SIGPIPE, sigpipe_callback_handler);
 
     const std::string URI = "http://localhost:4000/graphql";
     context.start_communication(URI);
@@ -69,6 +74,9 @@ int main(int argc, char** argv)
 
     metriffic::session_commands session_cmds(context);
     context.cli.RootMenu() -> Insert(session_cmds.create_session_cmd());
+
+    metriffic::workspace_commands workspace_cmds(context);
+    context.cli.RootMenu() -> Insert(workspace_cmds.create_sync_cmd());
 
     context.session.ExitAction(
         [](auto& out) // session exit action
