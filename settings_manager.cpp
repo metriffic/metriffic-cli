@@ -13,7 +13,7 @@ namespace metriffic
 settings_manager::settings_manager()
 {
     m_settings = {
-        {"users", {}},
+        {USERS_TAG, {}},
     };
 
     m_path = fs::path(getenv("HOME")) / ".config" / "metriffic" / "settings";
@@ -26,11 +26,17 @@ settings_manager::settings_manager()
     }
 }
 
-nlohmann::json& 
-settings_manager::operator()()
+std::pair<bool, std::string>
+settings_manager::workspace(const std::string& username)
 {
-    return m_settings;
+    if(m_settings[USERS_TAG].count(username) == 0 ||
+       m_settings[USERS_TAG][username].count(WORKSPACE_TAG) == 0) {
+        return {false, ""};
+    }
+    auto user = m_settings[USERS_TAG][username];
+    return {true, user[WORKSPACE_TAG].get<std::string>()};
 }
+
 
 void 
 settings_manager::load()
@@ -51,8 +57,11 @@ void
 settings_manager::create_user(const std::string& username)
 {
     auto path = m_path.parent_path() / username;
+    auto workspace = path / WORKSPACE_TAG;
     fs::create_directories(path.parent_path());
-    m_settings["users"][username]["path"] = path; 
+    fs::create_directories(workspace);
+    m_settings[USERS_TAG][username][PATH_TAG] = std::string(path) + fs::path::preferred_separator; 
+    m_settings[USERS_TAG][username][WORKSPACE_TAG] = std::string(workspace) + fs::path::preferred_separator; 
     save();
 }
 

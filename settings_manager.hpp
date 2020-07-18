@@ -11,7 +11,7 @@ class settings_manager
 {    
 public:
     settings_manager();
-    nlohmann::json& operator()();
+    std::pair<bool, std::string> workspace(const std::string& username);
     void load();
     void save();
 
@@ -20,6 +20,9 @@ public:
 private:
     std::experimental::filesystem::path m_path;
     nlohmann::json m_settings;
+    const std::string WORKSPACE_TAG = "workspace";
+    const std::string USERS_TAG = "users";
+    const std::string PATH_TAG = "path";
 };
 
 } // namespace metriffic
