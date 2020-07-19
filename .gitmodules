@@ -8,3 +8,6 @@
 [submodule "tpt/json"]
 	path = tpt/json
 	url = https://github.com/nlohmann/json.git
+[submodule "tpt/cxxopts"]
+	path = tpt/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git
