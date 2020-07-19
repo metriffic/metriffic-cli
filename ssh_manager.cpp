@@ -302,6 +302,7 @@ ssh_manager::ssh_tunnel::run_service(int forwardsock, LIBSSH2_CHANNEL* channel)
             }
         }
     }
+    return true;
 }
 
 
