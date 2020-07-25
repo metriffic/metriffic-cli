@@ -41,6 +41,7 @@ gql_connection_manager::gql_connection_manager()
 
     // Initialize ASIO
     m_endpoint.init_asio();
+    m_endpoint.set_tls_init_handler(bind(&type::on_tls_init,this,::_1));
 
     // Register our handlers
     m_endpoint.set_socket_init_handler(bind(&type::on_socket_init,this,::_1));
@@ -98,6 +99,23 @@ gql_connection_manager::pull_incoming_messages(std::list<json>& messages)
 void 
 gql_connection_manager::on_socket_init(websocketpp::connection_hdl) 
 {
+}
+
+gql_connection_manager::context_ptr 
+gql_connection_manager::on_tls_init(websocketpp::connection_hdl) 
+{
+    // establishes a SSL connection
+    context_ptr ctx = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
+
+    try {
+        ctx->set_options(boost::asio::ssl::context::default_workarounds |
+                         boost::asio::ssl::context::no_sslv2 |
+                         boost::asio::ssl::context::no_sslv3 |
+                         boost::asio::ssl::context::single_dh_use);
+    } catch (std::exception &e) {
+        std::cout << "Error in context pointer: " << e.what() << std::endl;
+    }
+    return ctx;
 }
 
 void 
