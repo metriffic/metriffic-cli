@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     signal(SIGINT, sigint_callback_handler);
     signal(SIGPIPE, sigpipe_callback_handler);
 
-    const std::string URI = "wss://graphql.metriffic.com/graphql";
+    const std::string URI = "wss://api.metriffic.com/graphql";
     context.start_communication(URI);
 
     context.cli.RootMenu() -> Insert(
