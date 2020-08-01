@@ -77,7 +77,7 @@ session_commands::session_start(std::ostream& out,
             auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
 
             if(mode == MODE_INTERACTIVE) {
-                out<<"opening ssh tunnel... ";
+                out << "opening ssh tunnel... ";
                 auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
                                                                  msg["host"].get<std::string>(),
                                                                  msg["port"].get<int>());   
@@ -86,7 +86,7 @@ session_commands::session_start(std::ostream& out,
                     out << "container is ready, use the following to ssh:" << std::endl;
                     out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
                     out << "\tpassword:\t" << msg["password"].get<std::string>() << std::endl;            
-                    out << "note: stopping this session will kill the connection and running container." << std::endl;
+                    out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
                 } else {
                     out << "failed." << std::endl;
                 }
@@ -103,7 +103,10 @@ session_commands::session_start(std::ostream& out,
 void
 session_commands::session_stop(std::ostream& out, const std::string& name)
 {
+    out << "terminating the ssh tunnel... ";
     m_context.ssh.stop_ssh_tunnel(name);
+    out << "done" << std::endl;
+    
     int msg_id = m_context.gql_manager.session_stop(name);
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
