@@ -42,7 +42,9 @@ private:
         void stop();
 
     private:
-        bool run_service(int forwardsock, LIBSSH2_CHANNEL* channel);
+        bool run_service(int forwardsock, LIBSSH2_CHANNEL* channel,
+                         const char *shost, unsigned int sport);
+        int connect_to_bastion();
 
     private:
         std::thread m_thread;
@@ -57,7 +59,7 @@ private:
         std::string m_dest_host;
         unsigned int m_dest_port;
 
-        struct sockaddr_in m_sin;
+        //struct sockaddr_in m_sin;
         LIBSSH2_SESSION* m_session;
         LIBSSH2_CHANNEL* m_channel;
         int m_sockopt;
@@ -90,13 +92,13 @@ private:
 
     const std::string  LOCAL_SSH_HOSTNAME   = "127.0.0.1";
     const unsigned int LOCAL_SSH_PORT_START   = 2000;
-    const std::string  BASTION_SSH_HOSTNAME = "127.0.0.1";
-    const unsigned int BASTION_SSH_PORT = 3000;
+    const std::string  BASTION_SSH_HOSTNAME = "metriffic.com";
+    const unsigned int BASTION_SSH_PORT = 2222;
 
     const std::string  BASTION_SSH_USERNAME = "ssh_user";
     const std::string  BASTION_SSH_PASSWORD = "ssh_user";
 
-    const std::string  RSYNC_SERVER_HOSTNAME = "127.0.0.1";
+    const std::string  RSYNC_SERVER_HOSTNAME = "metriffic.com";
     const unsigned int RSYNC_SERVER_PORT = 2222;
 
     std::map<std::string, std::unique_ptr<ssh_tunnel>> m_session_tunnels;
