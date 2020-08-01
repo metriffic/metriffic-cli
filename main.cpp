@@ -1,6 +1,8 @@
 
 #include <nlohmann/json.hpp>
 #include <cxxopts.hpp>
+#include <plog/Log.h>
+#include <plog/Initializers/RollingFileInitializer.h>
 
 #include "session_commands.hpp"
 #include "authentication_commands.hpp"
@@ -34,6 +36,9 @@ int main(int argc, char** argv)
 {
     signal(SIGINT, sigint_callback_handler);
     signal(SIGPIPE, sigpipe_callback_handler);
+
+    plog::init(plog::verbose, "metriffic.log"); 
+    PLOGV << "Starting metriffic cli.";
 
     const std::string URI = "wss://api.metriffic.com/graphql";
     context.start_communication(URI);

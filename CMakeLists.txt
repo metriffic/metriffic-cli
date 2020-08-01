@@ -9,7 +9,8 @@ find_package(Boost 1.58.0 REQUIRED thread filesystem system chrono)
 include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
                     ${PROJECT_SOURCE_DIR}/tpt/cli/include
                     ${PROJECT_SOURCE_DIR}/tpt/json/include
-                    ${PROJECT_SOURCE_DIR}/tpt/cxxopts/include)
+                    ${PROJECT_SOURCE_DIR}/tpt/cxxopts/include
+                    ${PROJECT_SOURCE_DIR}/tpt/plog/include)
 
 add_executable(metriffic main.cpp 
                          settings_manager.cpp
