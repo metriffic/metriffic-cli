@@ -172,7 +172,7 @@ session_commands::create_session_cmd()
                         return;
                     }
                     if(result.count("platform") != 1) {
-                        out << CMD_SESSION_NAME << ": '-d|--docker-image' is a mandatory argument for starting a session." << std::endl;
+                        out << CMD_SESSION_NAME << ": '-p|--platform' is a mandatory argument for starting a session." << std::endl;
                         return;
                     }
                     platform = result["platform"].as<std::string>();
