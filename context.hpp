@@ -21,7 +21,8 @@ struct Context
 
     void logged_in(const std::string& username, const std::string& password);
     void logged_out();
-
+    bool is_logged_in() const;
+    
     void on_connection_close(); 
     void on_connection_fail(const std::string& reason); 
     

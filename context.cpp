@@ -49,6 +49,12 @@ Context::logged_out()
     username = "";
 }
 
+bool 
+Context::is_logged_in() const 
+{
+    return username != "";
+}
+
 void 
 Context::on_connection_close() 
 {
