@@ -11,11 +11,14 @@ class settings_manager
 {    
 public:
     settings_manager();
-    std::pair<bool, std::string> workspace(const std::string& username);
+
     void load();
     void save();
-
     void create_user(const std::string& username);
+
+    // accessors
+    std::pair<bool, std::string> workspace(const std::string& username);
+    std::string log_file();
 
 private:
     std::experimental::filesystem::path m_path;

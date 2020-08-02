@@ -37,6 +37,12 @@ settings_manager::workspace(const std::string& username)
     return {true, user[WORKSPACE_TAG].get<std::string>()};
 }
 
+std::string
+settings_manager::log_file()
+{
+    return m_path.parent_path() / "cli.log";
+}
+
 
 void 
 settings_manager::load()

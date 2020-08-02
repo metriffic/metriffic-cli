@@ -37,7 +37,26 @@ int main(int argc, char** argv)
     signal(SIGINT, sigint_callback_handler);
     signal(SIGPIPE, sigpipe_callback_handler);
 
-    plog::init(plog::verbose, "metriffic.log"); 
+    struct log_formatter
+    {
+    public:
+        static plog::util::nstring header() {
+            return plog::util::nstring();
+        }
+        static plog::util::nstring format(const plog::Record& record) {
+            tm t;
+            plog::util::localtime_s(&t, &record.getTime().time);
+            plog::util::nostringstream ss;
+            ss << t.tm_year + 1900 << "-" << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mon + 1 << PLOG_NSTR("-") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mday << PLOG_NSTR(" ");
+            ss << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_hour << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_min << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_sec << PLOG_NSTR(" ");
+            ss << std::setfill(PLOG_NSTR(' ')) << std::setw(5) << std::left << severityToString(record.getSeverity()) << PLOG_NSTR(" ");
+            ss << record.getMessage() << PLOG_NSTR("\n");
+
+            return ss.str();
+        }
+    };
+    std::string log_file =  context.settings.log_file();
+    plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
     PLOGV << "Starting metriffic cli.";
 
     const std::string URI = "wss://api.metriffic.com/graphql";
