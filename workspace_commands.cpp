@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -59,8 +60,6 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
     if(direction == SYNC_DIR_UP) {
         ss << user_workspace << " "
             << username << "@localhost:";
-        //ss << " /home/vazgen/workspace/METRIFFIC/EXPERIMENTAL/remove_it/b/ "
-        //   << sync_username << "@" << dest_host << ":/home/ssh_user/bla/";
     } else {
         // shouldn't be possible unless the code is inconsistent... 
         // send out a message. and do nothing.
@@ -70,12 +69,58 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
     return ss.str();
 }
 
+
 void
-workspace_commands::sync(std::ostream& out, 
-                         bool enable_delete,
-                         const std::string& direction, 
-                         const std::string& folder)
+workspace_commands::workspace_set(std::ostream& out, const std::string& path)
 {
+    namespace fs = std::experimental::filesystem;
+
+    if(!m_context.is_logged_in()) {
+        out << "please log in first." << std::endl;
+        return;
+    }
+
+    auto fspath = fs::path(path);
+
+    if(!fs::exists(fspath)) {
+        if(fs::create_directories(fspath)) { 
+            out << "creating folder " << fspath << " for user '" << m_context.username << "'..." << std::endl;
+        } else {
+            out << "failed to create the specified folder: " << path << "." << std::endl;
+            return;
+        }
+    } else {
+        out << "setting existing folder " << fspath << " as a workspace for user '" << m_context.username << "'..." << std::endl;
+    }
+    m_context.settings.set_workspace(m_context.username, fspath);
+}
+
+void
+workspace_commands::workspace_show(std::ostream& out)
+{
+    if(!m_context.is_logged_in()) {
+        out << "please log in first." << std::endl;
+        return;
+    }
+    auto ret = m_context.settings.workspace(m_context.username);
+    if(ret.first == false) {
+        out << "the workspace for user '" << m_context.username << "' is not set..." << std::endl;
+    } else {
+        out << "the workspace for user '" << m_context.username << "' is currently set to " << ret.second << std::endl;
+    }
+}
+
+void
+workspace_commands::workspace_sync(std::ostream& out, 
+                                   bool enable_delete,
+                                   const std::string& direction, 
+                                   const std::string& folder)
+{
+    if(!m_context.is_logged_in()) {
+        out << "please log in first." << std::endl;
+        return;
+    }
+
     out<<"requesting access... ";
     int msg_id = m_context.gql_manager.sync_request();
     auto response = m_context.gql_manager.wait_for_response(msg_id);
@@ -160,52 +205,79 @@ std::shared_ptr<cli::Command>
 workspace_commands::create_sync_cmd()
 {
     m_sync_cmd = create_cmd_helper(
-        CMD_SYNC_NAME,
+        CMD_WORKSPACE_NAME,
         [this](std::ostream& out, int argc, char** argv){ 
 
-            cxxopts::Options options(CMD_SYNC_NAME, CMD_SYNC_HELP);
+            cxxopts::Options options(CMD_WORKSPACE_NAME, CMD_WORKSPACE_HELP);
             options.add_options()
-                ("direction", CMD_SYNC_PARAMDESC[0], cxxopts::value<std::string>())
-                ("f, folder", CMD_SYNC_PARAMDESC[1], cxxopts::value<std::string>())
-                ("d, delete", CMD_SYNC_PARAMDESC[2], cxxopts::value<bool>()->default_value("false"));
+                ("command", CMD_WORKSPACE_PARAMDESC[0], cxxopts::value<std::string>())
+                ("direction", CMD_WORKSPACE_PARAMDESC[1], cxxopts::value<std::string>())
+                ("f, folder", CMD_WORKSPACE_PARAMDESC[2], cxxopts::value<std::string>())
+                ("d, delete", CMD_WORKSPACE_PARAMDESC[3], cxxopts::value<bool>()->default_value("false"));
 
-            options.parse_positional({"direction"});
+            options.parse_positional({"command", "direction"});
 
             try {
                 auto result = options.parse(argc, argv);
-                if(result.count("direction") != 1) {
-                    out << CMD_SYNC_NAME << ": 'direction' (either '"
-                        << SYNC_DIR_UP << "' or '" << SYNC_DIR_DOWN
+                if(result.count("command") != 1) {
+                    out << CMD_WORKSPACE_NAME << ": 'command' (either '"
+                        << WORKSPACE_SET_CMD << ", " << WORKSPACE_SHOW_CMD << "' or '" << WORKSPACE_SYNC_CMD
                         << "') is a mandatory argument." << std::endl;
                     return;
                 }
-                auto direction = result["direction"].as<std::string>();
-                if(direction != SYNC_DIR_UP && direction != SYNC_DIR_DOWN) {
-                    out << CMD_SYNC_NAME << ": unsupported 'direction', supported directions are '"
-                        << SYNC_DIR_UP << "' or '" << SYNC_DIR_DOWN << "'." << std::endl;
+                auto command = result["command"].as<std::string>();
+
+                if(command == WORKSPACE_SET_CMD) {
+                    if(result.count("folder") != 1) {
+                        out << CMD_WORKSPACE_NAME << ": '-f|--folder' is a mandatory argument for 'workspace set'." << std::endl;
+                        return;
+                    }
+                    std::string folder = result["folder"].as<std::string>();
+                    workspace_set(out, folder);
+                } else 
+                if(command == WORKSPACE_SHOW_CMD) {
+                    workspace_show(out);
+                } else 
+                if(command == WORKSPACE_SYNC_CMD) {
+                    if(result.count("direction") != 1) {
+                        out << CMD_WORKSPACE_NAME << ": 'direction' (either '"
+                            << SYNC_DIR_UP << "' or '" << SYNC_DIR_DOWN
+                            << "') is a mandatory argument." << std::endl;
+                        return;
+                    }
+                    auto direction = result["direction"].as<std::string>();
+                    if(direction != SYNC_DIR_UP && direction != SYNC_DIR_DOWN) {
+                        out << CMD_WORKSPACE_NAME << ": unsupported 'direction', supported directions are '"
+                            << SYNC_DIR_UP << "' or '" << SYNC_DIR_DOWN << "'." << std::endl;
+                        return;
+                    }                    
+                    std::string folder = "";
+                    if(result.count("folder")) {
+                        folder = result["folder"].as<std::string>();
+                    }
+                    bool enable_delete = false;                
+                    if(result.count("delete")) {
+                        enable_delete = result["delete"].as<bool>();
+                    }
+                    workspace_sync(out, enable_delete, direction, folder);
+
+                } else {
+                    out << CMD_WORKSPACE_NAME << ": unsupported command, "
+                        << "supported types are: '"<< WORKSPACE_SET_CMD << "', '" << WORKSPACE_SHOW_CMD 
+                        << "', '" << WORKSPACE_SYNC_CMD << "'." << std::endl;
                     return;
                 }
-                
-                std::string folder = "";
-                if(result.count("folder")) {
-                    folder = result["folder"].as<std::string>();
-                }
 
-                bool enable_delete = false;                
-                if(result.count("delete")) {
-                    enable_delete = result["delete"].as<bool>();
-                }
-
-                sync(out, enable_delete, direction, folder);
+               
 
             } catch (std::exception& e) {
-                out << CMD_SYNC_NAME << ": " << e.what() << std::endl;
+                out << CMD_WORKSPACE_NAME << ": " << e.what() << std::endl;
                 print_sync_usage(out);
                 return;
             }        
         },
-        CMD_SYNC_HELP,
-        CMD_SYNC_PARAMDESC
+        CMD_WORKSPACE_HELP,
+        CMD_WORKSPACE_PARAMDESC
     );
     return m_sync_cmd;
 }

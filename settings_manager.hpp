@@ -18,6 +18,7 @@ public:
 
     // accessors
     std::pair<bool, std::string> workspace(const std::string& username);
+    bool set_workspace(const std::string& username, const std::string& path);
     std::string log_file();
 
 private:

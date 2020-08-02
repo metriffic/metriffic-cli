@@ -37,6 +37,17 @@ settings_manager::workspace(const std::string& username)
     return {true, user[WORKSPACE_TAG].get<std::string>()};
 }
 
+bool
+settings_manager::set_workspace(const std::string& username, const std::string& path)
+{
+    if(m_settings[USERS_TAG].count(username) == 0) {
+        return false;
+    }
+    m_settings[USERS_TAG][username][WORKSPACE_TAG] = path;
+    save();
+    return true;
+}
+
 std::string
 settings_manager::log_file()
 {
