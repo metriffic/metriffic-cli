@@ -65,17 +65,20 @@ ssh_manager::ssh_tunnel::ssh_tunnel(
     m_bastion_port(bastion_port),
     m_dest_host(dest_host),
     m_dest_port(dest_port),
-    m_channel(NULL),
-    m_sock(-1),
-    m_listensock(-1),
-    m_forwardsock(-1)
+    m_local_port(-1),
+    m_listen_sock(-1)
 {}
 
 ssh_manager::ssh_tunnel::~ssh_tunnel() 
 {
 }
 
-
+ssh_manager::ssh_tunnel::one_session::one_session()
+  : session(NULL),
+    channel(NULL),
+    sock(-1),
+    forwardsock(-1)
+{}
 
 int 
 ssh_manager::ssh_tunnel::connect_to_bastion()
@@ -89,99 +92,41 @@ ssh_manager::ssh_tunnel::connect_to_bastion()
     std::string port = std::to_string(m_bastion_port);
 
     int err = getaddrinfo(m_bastion_host.c_str(), port.c_str(), &hints, &addrs);
-    if (err != 0) {}
+    if (err == 0) {
+        for(struct addrinfo *addr = addrs; addr != NULL; addr = addr->ai_next) {
+            sd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+            if (sd == -1) {
+                break; 
+            }
+
+            if (connect(sd, addr->ai_addr, addr->ai_addrlen) == 0) {
+                break;
+            }
+
+            close(sd);
+            sd = -1;
+        }
+    } else {
         PLOGE << "Error: failed to get address to bastion: " << strerror(err);
-        return sd;
-    }
-
-    for(struct addrinfo *addr = addrs; addr != NULL; addr = addr->ai_next) {
-        sd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
-        if (sd == -1) {
-            err = errno;
-            break; 
-        }
-
-        if (connect(sd, addr->ai_addr, addr->ai_addrlen) == 0) {
-            break;
-        }
-
-        err = errno;
-
-        close(sd);
-        sd = -1;
     }
 
     freeaddrinfo(addrs);
 
-    if (sd == -1) {
-        PLOGE << "Error: failed to connect to bastion: " << strerror(err);
-    }
-
     return sd;
 }
 
-
-ssh_manager::ssh_tunnel_ret
-ssh_manager::ssh_tunnel::init()
+bool
+ssh_manager::ssh_tunnel::setup_listening_socket()
 {
-    // tbd: take them out, make configurable
-    constexpr unsigned int LOCAL_LISTEN_PORT_START = 3000;
-    constexpr unsigned int LOCAL_LISTEN_PORT_END = 4000;
-
-    // Connect to SSH server 
-    m_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    if(m_sock == -1) { 
-        PLOGE << "Error: failed to create a socket!";
-        return ssh_tunnel_ret(false);
-    }
- 
-    m_sock = connect_to_bastion();
- 
-    // Create a session instance 
-    m_session = libssh2_session_init();
-
-    if(!m_session) {
-        PLOGE << "Error: could not initialize SSH session!";
-        return ssh_tunnel_ret(false);
-    }
- 
-    // Start it up. This will trade welcome banners, exchange keys,
-    // and setup crypto, compression, and MAC layers
-    int rc = libssh2_session_handshake(m_session, m_sock);
-
-    if(rc) {
-        PLOGE << "Error: failed to start up SSH session: " << rc;
-        return ssh_tunnel_ret(false);
-    }
- 
-    // At this point we havn't yet authenticated.  The first thing to do
-    // is check the hostkey's fingerprint against our known hosts Your app
-    // may have it hard coded, may go to a file, may present it to the
-    // user, that's your call
-    //const char* fingerprint = libssh2_hostkey_hash(m_session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    //std::cout<<"Fingerprint: ";
-    //for(int i = 0; i < 20; i++) {
-    //    std::cout << std::hex << ((unsigned char)fingerprint[i]) << " ";
-    //}
-    //std::cout<<std::endl;
- 
-    if(libssh2_userauth_password(m_session, m_username.c_str(), m_password.c_str())) {
-        PLOGE << "Error: authentication by password failed!";
-        return ssh_tunnel_ret(false);
-    }
-    PLOGV << "Authentication by password succeeded!";
-
-
-    m_listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(m_listensock == -1) {
-        //error("socket");
-        return ssh_tunnel_ret(false);
+    m_listen_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(m_listen_sock == -1) {
+        PLOGE << "socket: " << strerror(errno);
+        return false;
     }
 
-    m_sockopt = 1;
-    setsockopt(m_listensock, SOL_SOCKET, SO_REUSEADDR, &m_sockopt, sizeof(m_sockopt));
-    
+    static int sockopt = 1;
+    setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+
     unsigned int listen_port = m_local_port_range.first-1;
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
@@ -189,127 +134,198 @@ ssh_manager::ssh_tunnel::init()
     socklen_t sinlen = sizeof(sin);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
         PLOGE << "inet_addr: " << strerror(errno);
-        return ssh_tunnel_ret(false);
+        return false;
     }
+
     while(listen_port++ < m_local_port_range.second) {
         sin.sin_port = htons(listen_port);
-        if(-1 == bind(m_listensock, (struct sockaddr *)&sin, sinlen)) {
+        if(-1 == bind(m_listen_sock, (struct sockaddr *)&sin, sinlen)) {
             PLOGE << "bind: " << strerror(errno);
             continue;
         }
-        if(-1 == listen(m_listensock, 2)) {
+        if(-1 == listen(m_listen_sock, 2)) {
             PLOGE << "listen: " << strerror(errno);
             continue;
         }
-        break;
+        m_local_port = listen_port; 
+        return true;
     }
-//
-    return ssh_tunnel_ret(true, listen_port, m_dest_host);
+    return false;    
+}
+
+
+
+ssh_manager::ssh_tunnel_ret
+ssh_manager::ssh_tunnel::start()
+{
+    if(setup_listening_socket()) {
+        m_thread = std::thread([this]() {
+            while( m_should_stop == false ) {
+                bool result = run();
+                if(result == false) {
+                    PLOGE << "Error: tunnel thread failed";
+                    break;
+                }
+            };
+        });
+        return ssh_tunnel_ret(true, m_local_port, m_dest_host); 
+    }
+
+    return ssh_tunnel_ret(false);
 }
 
 void 
 ssh_manager::ssh_tunnel::stop()
 {
     m_should_stop = true;
-    close(m_forwardsock);
-    close(m_listensock);
-    if(m_channel) {
-        libssh2_channel_free(m_channel);
+    close(m_listen_sock);
+    for (auto& os : m_all_sessions) {
+        close(os.forwardsock);
+        if(os.channel) {
+            libssh2_channel_free(os.channel);
+        }
+        libssh2_session_disconnect(os.session, "");
+        libssh2_session_free(os.session);
+        close(os.sock); 
+        os.io_thread.join();
     }
-    libssh2_session_disconnect(m_session, "");//"Client disconnecting normally");
-    libssh2_session_free(m_session);
-    close(m_sock);  
+    m_all_sessions.clear();
     m_thread.join();
 }
 
-void 
-ssh_manager::ssh_tunnel::run()
-{
-    m_thread = std::thread([this]() {
-        struct sockaddr_in sin;
-        socklen_t sinlen = sizeof(sin);
+bool
+ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
+{    
+    // Connect to SSH server 
+    os.sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-        while( !m_should_stop ) {
-            struct timeval tv;
-            tv.tv_sec = 0;
-            tv.tv_usec = 1000000;
-            fd_set allset;
-            int maxfd = m_listensock;		
-            FD_ZERO(&allset);
-            FD_SET(m_listensock, &allset);
+    if(os.sock == -1) { 
+        PLOGE << "Error: failed to create a socket!";
+        return false;
+    }
+    os.sock = connect_to_bastion();
+    if(!os.sock == -1) {
+        PLOGE << "Error: failed to connect to bastion: " << strerror(errno);
+        return false;
+    }
+    // Create a session instance 
+    os.session = libssh2_session_init();
 
-            int nready = select(maxfd+1, &allset, NULL, NULL, &tv);
+    if(!os.session) {
+        PLOGE << "Error: could not initialize SSH session!";
+        return false;
+    }
+    // Start it up. This will trade welcome banners, exchange keys,
+    // and setup crypto, compression, and MAC layers
+    int rc = libssh2_session_handshake(os.session, os.sock);
 
-            if (FD_ISSET(m_listensock, &allset)) {
-                //std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-                m_forwardsock = accept(m_listensock, (struct sockaddr *)&sin, &sinlen);
-
-                if (errno == EWOULDBLOCK || errno == EAGAIN) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                    continue;
-                }
-                if(m_forwardsock == -1) {
-                    PLOGE << "accept: " << strerror(errno);
-                    break;
-                }
-            
-                const char *shost = inet_ntoa(sin.sin_addr);
-                unsigned int sport = ntohs(sin.sin_port);
-            
-                if(m_channel) {
-                    libssh2_channel_free(m_channel);
-                }
-                m_channel = libssh2_channel_direct_tcpip_ex(m_session, 
-                                                            m_dest_host.c_str(), m_dest_port, 
-                                                            shost, sport);
-                if(!m_channel) {
-                    PLOGE << "libssh2_channel_direct_tcpip_ex: failed to create a channel...";
-                    break;
-                }
-            
-                // must use non-blocking IO hereafter due to the current libssh2 API  
-                libssh2_session_set_blocking(m_session, 0);
-                run_service(m_forwardsock, m_channel, shost, sport);
-                // restoring back to blocking
-                libssh2_session_set_blocking(m_session, 1);
-            }
-        }       
+    if(rc) {
+        PLOGE << "Error: failed to start up SSH session: " << rc;
+        return false;
+    }
+    if(libssh2_userauth_password(os.session, m_username.c_str(), m_password.c_str())) {
+        PLOGE << "Error: authentication by password failed!";
+        return false;
+    }
+    PLOGV << "Authentication by password succeeded!";
     
-    });
+    return true;
 }
 
 bool 
-ssh_manager::ssh_tunnel::run_service(int forwardsock, LIBSSH2_CHANNEL* channel,
-                                     const char *shost, unsigned int sport)
+ssh_manager::ssh_tunnel::run()
+{    
+    one_session os;
+    struct sockaddr_in sin;
+    socklen_t sinlen = sizeof(sin);
+    
+    while(m_should_stop == false) {        
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 1000000;
+        fd_set allset;
+        int maxfd = m_listen_sock;		
+        FD_ZERO(&allset);
+        FD_SET(m_listen_sock, &allset);
+        int nready = select(maxfd+1, &allset, NULL, NULL, &tv);
+        
+        if(FD_ISSET(m_listen_sock, &allset)) {
+            os.forwardsock = accept(m_listen_sock, (struct sockaddr *)&sin, &sinlen);
+
+            if(os.forwardsock < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                continue;
+            }
+            if(os.forwardsock == -1) {
+                PLOGE << "accept: " << strerror(errno);
+                return false;
+            }
+            const char *src_host = inet_ntoa(sin.sin_addr);
+            unsigned int src_port = ntohs(sin.sin_port);
+        
+            if(os.channel) {
+                libssh2_channel_free(os.channel);
+                os.channel = NULL;
+                return false;
+            }   
+            if(establish_connection_to_bastion(os) == false) {
+                return false;
+            }
+            os.channel = libssh2_channel_direct_tcpip_ex(os.session, 
+                                                         m_dest_host.c_str(), m_dest_port, 
+                                                         src_host, src_port);
+            if(!os.channel) {
+                PLOGE << "libssh2_channel_direct_tcpip_ex: failed to create a channel...";
+                return false;
+            }
+            break;
+        }
+    }
+    
+    if(m_should_stop == false) {
+        m_all_sessions.push_back(std::move(os));
+        one_session& ros = m_all_sessions.back();
+        ros.io_thread = std::thread([this, &ros]() {
+            service_io(ros);
+        });
+    }
+    return true; 
+}
+
+
+bool 
+ssh_manager::ssh_tunnel::service_io(one_session& os)
 {
+    // must use non-blocking IO hereafter due to the current libssh2 API  
+    libssh2_session_set_blocking(os.session, 0);
+
     fd_set fds;
     char buf[16384];
     struct timeval tv;
 
-    while( true && !m_should_stop) {
+    while( true && m_should_stop == false) {
         FD_ZERO(&fds);
-        FD_SET(forwardsock, &fds);
+        FD_SET(os.forwardsock, &fds);
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
-        int rc = select(forwardsock + 1, &fds, NULL, NULL, &tv);
+        int rc = select(os.forwardsock + 1, &fds, NULL, NULL, &tv);
         if(-1 == rc) {
             PLOGE << "select: " << strerror(errno);
             return false;
         }
-        if(rc && FD_ISSET(forwardsock, &fds)) {
-            ssize_t len = recv(forwardsock, buf, sizeof(buf), 0);
+        if(rc && FD_ISSET(os.forwardsock, &fds)) {
+            ssize_t len = recv(os.forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {
                 PLOGE << "read: " << strerror(errno);
                 return false;
             }
             else if(0 == len) {
-                PLOGV << "the client at " << shost << ":" << sport << " disconnected!" << std::endl; 
+                PLOGV << "The client disconnected" << std::endl; 
                 return true;
             }
             ssize_t wr = 0;
-            while((wr < len)  && !m_should_stop)  {
-                int i = libssh2_channel_write(channel, buf + wr, len - wr);
+            while((wr < len)  && m_should_stop == false)  {
+                int i = libssh2_channel_write(os.channel, buf + wr, len - wr);
 
                 if(LIBSSH2_ERROR_EAGAIN == i) {
                     continue;
@@ -321,8 +337,8 @@ ssh_manager::ssh_tunnel::run_service(int forwardsock, LIBSSH2_CHANNEL* channel,
                 wr += i;
             }
         }
-        while( true  && !m_should_stop) {
-            ssize_t len = libssh2_channel_read(channel, buf, sizeof(buf));
+        while( m_should_stop == false) {
+            ssize_t len = libssh2_channel_read(os.channel, buf, sizeof(buf));
 
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
@@ -331,15 +347,15 @@ ssh_manager::ssh_tunnel::run_service(int forwardsock, LIBSSH2_CHANNEL* channel,
                 return false;
             }
             ssize_t wr = 0;
-            while((wr < len) && !m_should_stop) {
-                int i = send(forwardsock, buf + wr, len - wr, 0);
+            while((wr < len) && m_should_stop == false) {
+                int i = send(os.forwardsock, buf + wr, len - wr, 0);
                 if(i <= 0) {
                     PLOGE << "write: " << strerror(errno);
                     return false;
                 }
                 wr += i;
             }
-            if(libssh2_channel_eof(channel)) {
+            if(libssh2_channel_eof(os.channel)) {
                 PLOGV << "The server disconnected";
                 return true;
             }
@@ -362,7 +378,7 @@ ssh_manager::ssh_manager()
 ssh_manager::~ssh_manager()
 {
     for(auto& tit : m_session_tunnels) {
-        PLOGV << "Stopping ssh tunnel for session \'" << tit.first << "\'... ";
+        PLOGV << "Stopping ssh tunnel for session \'" << tit.first << "\'... ";        
         tit.second->stop();
         PLOGV << "done.";
     }
@@ -383,11 +399,9 @@ ssh_manager::start_ssh_tunnel(const std::string& session_name,
                                                BASTION_SSH_PORT,                                               
                                                desthost, 
                                                destport);
-    auto tunnel_ret = tunnel->init();
+    auto tunnel_ret = tunnel->start();
     if(tunnel_ret.status) {
-        tunnel->run();
         m_session_tunnels.insert(std::make_pair(session_name, std::move(tunnel)));
-        PLOGV << "done.";
     }
     return tunnel_ret;
 }

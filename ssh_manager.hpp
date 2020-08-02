@@ -7,6 +7,7 @@
 #include <thread>
 #include <memory>
 #include <map>
+#include <list>
 
 namespace metriffic
 {
@@ -28,6 +29,14 @@ private:
     class ssh_tunnel
     {
     public:
+        struct one_session {
+            one_session();
+            LIBSSH2_SESSION* session;
+            LIBSSH2_CHANNEL* channel;
+            int sock;
+            int forwardsock;
+            std::thread io_thread;
+        };
         ssh_tunnel(const std::string& username,
                    const std::string& password,
                    const std::string& local_host,
@@ -37,13 +46,14 @@ private:
                    const std::string& dest_host,
                    const unsigned int dest_port);
         ~ssh_tunnel();
-        ssh_tunnel_ret init();
-        void run();
+        ssh_tunnel_ret start();
         void stop();
 
     private:
-        bool run_service(int forwardsock, LIBSSH2_CHANNEL* channel,
-                         const char *shost, unsigned int sport);
+        bool run();
+        bool setup_listening_socket();
+        bool establish_connection_to_bastion(one_session& os);
+        bool service_io(one_session& os);
         int connect_to_bastion();
 
     private:
@@ -58,14 +68,9 @@ private:
         unsigned int m_bastion_port;
         std::string m_dest_host;
         unsigned int m_dest_port;
-
-        //struct sockaddr_in m_sin;
-        LIBSSH2_SESSION* m_session;
-        LIBSSH2_CHANNEL* m_channel;
-        int m_sockopt;
-        int m_sock;
-        int m_listensock;
-        int m_forwardsock;
+        unsigned int m_local_port;
+        int m_listen_sock;
+        std::list<one_session> m_all_sessions;
     };
 
 public:
@@ -98,8 +103,8 @@ private:
     const std::string  BASTION_SSH_USERNAME = "ssh_user";
     const std::string  BASTION_SSH_PASSWORD = "ssh_user";
 
-    const std::string  RSYNC_SERVER_HOSTNAME = "metriffic.com";
-    const unsigned int RSYNC_SERVER_PORT = 2222;
+    const std::string  RSYNC_SERVER_HOSTNAME = "metriffic";
+    const unsigned int RSYNC_SERVER_PORT = 7000;
 
     std::map<std::string, std::unique_ptr<ssh_tunnel>> m_session_tunnels;
     bool m_should_stop = false;
