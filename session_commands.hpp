@@ -19,9 +19,11 @@ public:
 
 private:
     void print_session_usage(std::ostream& out);
-    void session_start(std::ostream& out, 
-                       const std::string& name, const std::string& dockerimage, 
-                       const std::string& mode, const std::string& platform);
+    void session_start_batch(std::ostream& out, const std::string& name, const std::string& dockerimage, 
+                             const std::string& platform, const std::string& script, int max_jobs,
+                             const std::vector<std::string>& datasets);
+    void session_start_interactive(std::ostream& out, const std::string& name,
+                                   const std::string& dockerimage, const std::string& platform);
     void session_stop(std::ostream& out, const std::string& name);
     void session_status(std::ostream& out, const std::string& name);
     
@@ -40,6 +42,9 @@ private:
         {"   <mode>: mandatory for 'start' command, specifies the type of session to start."},
         {"   -p|--platform <platform name>: name of the platform to start mission on."},
         {"   -d|--docker-image <docker image>: docker image to instantiate on the target board."},
+        {"   -r|--run-script <script/binary>: the script or binary command to execute, mandatory for batch mode."},
+        {"   -i|--input-datasets <[ds1,ds2,...dsn]>: list of input datasets to pass to each instance, mandatory for batch mode."},
+        {"   -j|--jobs <N>: maximum number of simultaneous jobs."},
         {"-n|--name <name of the session>: Name of the session to perform operation on."},
     };
 };

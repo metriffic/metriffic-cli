@@ -54,7 +54,7 @@ public:
                       const std::string& dockerimage,
                       const std::vector<std::string>& datasets,
                       int max_jobs,
-                      std::string& command);
+                      const std::string& command);
     int session_stop(const std::string& name);
     int sync_request();
     int subscribe_to_data_stream();

@@ -377,9 +377,19 @@ gql_connection_manager::session_start(const std::string& name,
                                       const std::string& dockerimage,
                                       const std::vector<std::string>& datasets,
                                       int max_jobs,
-                                      std::string& command)
+                                      const std::string& command)
 {
     int id = m_msg_id++;
+
+    json dataset_js;
+    for(auto& ds : datasets) {
+        dataset_js.push_back(ds);
+    }
+
+    std::istringstream iss(command);
+    json command_js;
+    std::copy(std::istream_iterator<std::string>(iss),
+               std::istream_iterator<std::string>(), std::back_inserter(command_js));
 
     std::stringstream ss;
     ss << "mutation{ sessionCreate (";
@@ -388,7 +398,9 @@ gql_connection_manager::session_start(const std::string& name,
     ss << " type: \"" << type << "\"";
     ss << " dockerimage: \"" << dockerimage << "\"";
     ss << " max_jobs: " << max_jobs;
-    ss << " datasets: \"[]\" command: \"[]\")";
+    ss << " datasets: " << std::quoted(dataset_js.dump());
+    ss << " command: " << std::quoted(command_js.dump());
+    ss << ")";    
     ss << " { name, id, user{username}, dockerImage{name} } }";
     json sstart_msg = {
         {"id", id},
