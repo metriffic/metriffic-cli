@@ -44,7 +44,6 @@ session_commands::session_start_batch(std::ostream& out, const std::string& name
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
-        std::cout<<"XXX "<<data_msg.dump(4)<<std::endl;
         if(data_msg["type"] == "error") {
             out<<"error: likely an invalid query..."<<std::endl;
             return;

@@ -22,26 +22,6 @@
 #include <netdb.h>
 #include "ssh_manager.hpp"
 
-#define HAVE_UNISTD_H
-#define HAVE_INTTYPES_H
-#define HAVE_STDLIB_H
-#define HAVE_SYS_SELECT_H
-#define HAVE_SYS_SOCKET_H
-#define HAVE_SYS_TIME_H
-#define HAVE_ARPA_INET_H
-#define HAVE_NETINET_IN_H
-#define HAVE_WINSOCK2_H
-
-/* Functions */
-#define HAVE_STRCASECMP
-#define HAVE__STRICMP
-#define HAVE_SNPRINTF
-#define HAVE__SNPRINTF
-
-/* Symbols */
-#define HAVE___FUNC__
-#define HAVE___FUNCTION__
-
 namespace fs = std::experimental::filesystem;
 
 namespace metriffic
