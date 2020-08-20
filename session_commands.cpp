@@ -1,6 +1,7 @@
 #include <regex>
 #include <cli/cli.h>
 #include <cxxopts.hpp>
+#include <plog/Log.h>
 
 #include "session_commands.hpp"
 #include "context.hpp"
@@ -90,6 +91,7 @@ session_commands::session_start_interactive(std::ostream& out, const std::string
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
+        PLOGV << "session start response: " << data_msg.dump(4);
         //out<<data_msg.dump(4)<<std::endl;
         if(data_msg["type"] == "error") {
             out<<"got error in the data stream (abnormal query?)..."<<std::endl;
@@ -136,15 +138,16 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
+        PLOGV << "session stop response: " << data_msg.dump(4);
         if(data_msg["type"] == "error") {
-            out<<"error: likely an invalid query..."<<std::endl;
+            out << "error: likely an invalid query..." << std::endl;
             return;
         } else 
         if(data_msg["payload"]["errors"] != nullptr) {
-            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+            out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
             return;
         } else {
-            out<<"session '"<<data_msg["payload"]["data"]["sessionUpdate"]["name"].get<std::string>()<<"' is canceled."<<std::endl;
+            out << "session '" << data_msg["payload"]["data"]["sessionUpdate"]["name"].get<std::string>() << "' is canceled." << std::endl;
             break;
         }
     }
@@ -153,8 +156,21 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
 void
 session_commands::session_status(std::ostream& out, const std::string& name)
 {
-    // TBD
-    (void) name;
+    int msg_id = m_context.gql_manager.session_status(name);
+    auto response = m_context.gql_manager.wait_for_response(msg_id);
+    nlohmann::json data_msg = response.second;
+    PLOGV << "session status response: " << data_msg.dump(4);
+    if(data_msg["payload"]["data"] != nullptr) {
+        out << "session state: " << data_msg["payload"]["data"]["sessionStatus"]["state"].get<std::string>() << std::endl; 
+        for (auto& s : data_msg["payload"]["data"]["sessionStatus"]["jobs"]) {
+            out << "  #" << s["id"].get<int>() 
+                << "\t dataset: " << s["dataset"].get<std::string>() 
+                << "\t state: " << s["state"].get<std::string>() << std::endl;
+        }
+    } else 
+    if(data_msg["payload"]["errors"] != nullptr) {
+        out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+    }
 }
 
 std::shared_ptr<cli::Command> 
