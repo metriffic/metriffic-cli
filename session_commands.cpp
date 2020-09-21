@@ -154,6 +154,29 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
 }
 
 void
+session_commands::session_save(std::ostream& out, const std::string& name, 
+                               const std::string& dockerimage, const std::string& comment)
+{
+    int msg_id = m_context.gql_manager.session_save(name, dockerimage, comment);
+    while(true) {
+        auto response = m_context.gql_manager.wait_for_response(msg_id);
+        nlohmann::json data_msg = response.second;
+        PLOGV << "session save response: " << data_msg.dump(4);
+        if(data_msg["type"] == "error") {
+            out << "error: likely an invalid query..." << std::endl;
+            return;
+        } else 
+        if(data_msg["payload"]["errors"] != nullptr) {
+            out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+            return;
+        } else {
+            out << data_msg["payload"]["data"]["sessionSave"]["status"].get<std::string>() << std::endl;
+            break;
+        }
+    }
+}
+
+void
 session_commands::session_status(std::ostream& out, const std::string& name)
 {
     int msg_id = m_context.gql_manager.session_status(name);
@@ -207,6 +230,7 @@ session_commands::create_session_cmd()
                 std::string platform = "";
                 std::string dockerimage = "";
                 std::string script = "";
+                std::string comment = "";
                 std::vector<std::string> datasets;
                 int max_jobs = 1;
                 if(command == "start") {
@@ -277,6 +301,17 @@ session_commands::create_session_cmd()
                 } else 
                 if(command == "stop") {
                     session_stop(out, name);
+                } else 
+                if(command == "save") {
+                    if(result.count("docker-image") != 1) {
+                        out << CMD_SESSION_NAME << ": '-d|--docker-image' is a mandatory argument for saving a session." << std::endl;
+                        return;
+                    }
+                    dockerimage = result["docker-image"].as<std::string>();
+                    if(result.count("comment")) {
+                        comment = result["docker-image"].as<std::string>();
+                    }
+                    session_save(out, name, dockerimage, comment);
                 } else 
                 if(command == "status") {
                     session_status(out, name);

@@ -62,6 +62,7 @@ public:
                       int max_jobs,
                       const std::string& command);
     int session_stop(const std::string& name);
+    int session_save(const std::string& name, const std::string& dockerimage, const std::string& comment);
     int session_status(const std::string& name);
     int sync_request();
     int subscribe_to_data_stream();

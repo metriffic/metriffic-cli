@@ -448,6 +448,38 @@ gql_connection_manager::session_stop(const std::string& name)
 }
 
 int 
+gql_connection_manager::session_save(const std::string& name, 
+                                     const std::string& dockerimage, 
+                                     const std::string& comment)
+{
+    int id = m_msg_id++;
+
+    std::stringstream ss;
+
+    ss << "mutation{ sessionSave (";
+    ss << " name: \"" << name << "\"";
+    ss << " dockerimage: \"" << dockerimage << "\"";
+    ss << " description: \"" << comment << "\")";
+        ss << " { status } }";
+    
+    json ssave_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(ssave_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int 
 gql_connection_manager::session_status(const std::string& name)
 {
     int id = m_msg_id++;

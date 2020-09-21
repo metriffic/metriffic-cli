@@ -25,6 +25,8 @@ private:
     void session_start_interactive(std::ostream& out, const std::string& name,
                                    const std::string& dockerimage, const std::string& platform);
     void session_stop(std::ostream& out, const std::string& name);
+    void session_save(std::ostream& out, const std::string& name, 
+                      const std::string& docker_image, const std::string& comment);
     void session_status(std::ostream& out, const std::string& name);
     
 private: 
@@ -38,13 +40,14 @@ private:
     const std::string CMD_SESSION_NAME = "session";
     const std::string CMD_SESSION_HELP = "session management commands...";
     const std::vector<std::string> CMD_SESSION_PARAMDESC = {
-        {"<command>: mandatory argument, session request to execute. Can be either 'start', 'stop' or 'status'"},
+        {"<command>: mandatory argument, session request to execute. Can be either 'start', 'stop', 'status' or 'save'"},
         {"   <mode>: mandatory for 'start' command, specifies the type of session to start."},
         {"   -p|--platform <platform name>: name of the platform to start mission on."},
         {"   -d|--docker-image <docker image>: docker image to instantiate on the target board."},
         {"   -r|--run-script <script/binary>: the script or binary command to execute, mandatory for batch mode."},
         {"   -i|--input-datasets <[ds1,ds2,...dsn]>: list of input datasets to pass to each instance, mandatory for batch mode."},
         {"   -j|--jobs <N>: maximum number of simultaneous jobs."},
+        {"   -c|--comment <text>: description of the requested operation."},
         {"-n|--name <name of the session>: Name of the session to perform operation on."},
     };
 };
