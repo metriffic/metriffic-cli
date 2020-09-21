@@ -61,7 +61,11 @@ int main(int argc, char** argv)
     plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
     PLOGV << "Starting metriffic cli.";
 
+#ifdef TEST_MODE
+    const std::string URI = "ws://127.0.0.1:4000/graphql";
+#else
     const std::string URI = "wss://api.metriffic.com/graphql";
+#endif
     context.start_communication(URI);
 
     context.cli.RootMenu() -> Insert(

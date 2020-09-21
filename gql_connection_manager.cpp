@@ -41,8 +41,9 @@ gql_connection_manager::gql_connection_manager()
 
     // Initialize ASIO
     m_endpoint.init_asio();
+#ifndef TEST_MODE
     m_endpoint.set_tls_init_handler(bind(&type::on_tls_init,this,::_1));
-
+#endif
     // Register our handlers
     m_endpoint.set_socket_init_handler(bind(&type::on_socket_init,this,::_1));
     m_endpoint.set_message_handler(bind(&type::on_message,this,::_1,::_2));
@@ -101,6 +102,7 @@ gql_connection_manager::on_socket_init(websocketpp::connection_hdl)
 {
 }
 
+#ifndef TEST_MODE
 gql_connection_manager::context_ptr 
 gql_connection_manager::on_tls_init(websocketpp::connection_hdl) 
 {
@@ -117,6 +119,7 @@ gql_connection_manager::on_tls_init(websocketpp::connection_hdl)
     }
     return ctx;
 }
+#endif
 
 void 
 gql_connection_manager::on_fail(websocketpp::connection_hdl hdl) 

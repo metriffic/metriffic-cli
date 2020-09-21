@@ -13,7 +13,11 @@ class gql_connection_manager
 {
 public:
     typedef gql_connection_manager type;
+#ifdef TEST_MODE
+    typedef websocketpp::client<websocketpp::config::asio_client> client;
+#else
     typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
+#endif
     typedef websocketpp::config::asio_tls_client::message_type::ptr message_ptr;
     typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
     typedef client::connection_ptr connection_ptr;
@@ -25,7 +29,9 @@ public:
     void pull_incoming_messages(std::list<nlohmann::json>& messages);
 
     void on_socket_init(websocketpp::connection_hdl);
+#ifndef TEST_MODE
     context_ptr on_tls_init(websocketpp::connection_hdl);
+#endif
     void on_fail(websocketpp::connection_hdl hdl);
     void on_open(websocketpp::connection_hdl hdl);
     void on_message(websocketpp::connection_hdl hdl, message_ptr msg);
