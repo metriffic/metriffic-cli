@@ -12,18 +12,36 @@ include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
                     ${PROJECT_SOURCE_DIR}/tpt/cxxopts/include
                     ${PROJECT_SOURCE_DIR}/tpt/plog/include)
 
-add_executable(metriffic main.cpp 
-                         settings_manager.cpp
-                         ssh_manager
-                         gql_connection_manager.cpp
-                         context.cpp
-                         session_commands.cpp
-                         authentication_commands.cpp
-                         query_commands.cpp
-                         workspace_commands.cpp)
-target_link_libraries(metriffic ${Boost_LIBRARIES}
-                                pthread
-                                crypto
-                                ssl
-                                ssh2
-                                stdc++fs) 
+set(sources 
+        main.cpp 
+        settings_manager.cpp
+        ssh_manager
+        gql_connection_manager.cpp
+        context.cpp
+        session_commands.cpp
+        authentication_commands.cpp
+        query_commands.cpp
+        workspace_commands.cpp
+)
+set(libraries 
+        ${Boost_LIBRARIES}
+        pthread
+        crypto
+        ssl
+        ssh2
+        stdc++fs
+)
+
+
+add_executable(metriffic ${sources})
+add_executable(metriffic_local ${sources})
+
+target_compile_definitions(metriffic_local
+    PRIVATE TEST_MODE
+)
+
+set_target_properties(metriffic_local 
+    PROPERTIES EXCLUDE_FROM_ALL 1)
+
+target_link_libraries(metriffic ${libraries}) 
+target_link_libraries(metriffic_local ${libraries}) 
