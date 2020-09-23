@@ -28,6 +28,7 @@ void sigint_callback_handler(int signum)
         std::cout<<"\nUse exit to quit..."<<std::endl;
         context.session.reset_input();
         context.session.Prompt();                
+    }
 }
 
 void sigpipe_callback_handler(int signum) 
