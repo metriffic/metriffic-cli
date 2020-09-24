@@ -49,11 +49,13 @@ public:
                 const std::string& password, const std::string& repassword);
     int login(const std::string& username, const std::string& password);
     int logout();
+
     int query_platforms();
     int query_docker_images(const std::string& platform);
     int query_sessions(const std::string& platform, 
                        const std::vector<std::string>& statuses);
     int query_jobs(const std::string& platform, const std::string& session);
+
     int session_start(const std::string& name,
                       const std::string& platform,
                       const std::string& type,
@@ -64,6 +66,9 @@ public:
     int session_stop(const std::string& name);
     int session_save(const std::string& name, const std::string& dockerimage, const std::string& comment);
     int session_status(const std::string& name);
+
+    int admin_diagnostics();
+
     int sync_request();
     int subscribe_to_data_stream();
 

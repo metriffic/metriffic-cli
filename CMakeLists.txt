@@ -22,6 +22,7 @@ set(sources
         authentication_commands.cpp
         query_commands.cpp
         workspace_commands.cpp
+        admin_commands.cpp
 )
 set(libraries 
         ${Boost_LIBRARIES}

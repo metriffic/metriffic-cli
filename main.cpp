@@ -8,6 +8,7 @@
 #include "authentication_commands.hpp"
 #include "query_commands.hpp"
 #include "workspace_commands.hpp"
+#include "admin_commands.hpp"
 #include "context.hpp"
 
 using namespace cli;
@@ -108,6 +109,9 @@ int main(int argc, char** argv)
 
     metriffic::workspace_commands workspace_cmds(context);
     context.cli.RootMenu() -> Insert(workspace_cmds.create_sync_cmd());
+
+    metriffic::admin_commands admin_cmds(context);
+    context.cli.RootMenu() -> Insert(admin_cmds.create_admin_cmd());
 
     context.session.ExitAction(
         [](auto& out) // session exit action

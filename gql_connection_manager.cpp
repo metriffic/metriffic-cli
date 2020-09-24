@@ -504,6 +504,36 @@ gql_connection_manager::session_status(const std::string& name)
     return id;
 }
 
+int 
+gql_connection_manager::admin_diagnostics()
+{
+    int id = m_msg_id++;
+
+    std::stringstream ss;
+
+    ss << "mutation{ adminRequest (";
+    ss << " command: \"DIAGNOSTICS\"";
+    ss << " data: \"\")";
+        ss << " { status } }";
+    
+    json ssave_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+    m_connection->send(ssave_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+    return id;
+}
+
 int
 gql_connection_manager::sync_request() 
 {
