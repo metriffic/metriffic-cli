@@ -4,6 +4,7 @@
 #include <websocketpp/config/asio_client.hpp>
 #include <websocketpp/client.hpp>
 #include <nlohmann/json.hpp>
+#include <set>
 #include <list>
 
 namespace metriffic
@@ -73,6 +74,7 @@ public:
     int subscribe_to_data_stream();
 
     std::pair<bool, nlohmann::json> wait_for_response(int msg_id);
+    std::pair<bool, std::list<nlohmann::json>> wait_for_response(const std::set<int>& msg_ids);
 
 private:
     ext_handler_type ext_on_close_cb;

@@ -193,7 +193,7 @@ workspace_commands::workspace_sync(std::ostream& out,
         m_context.ssh.stop_rsync_tunnel(sync_username);
         out<<"stopping ssh tunnel. "<<std::endl;
     } else 
-    if(show_msg["payload"]["errors"] != nullptr ) {
+    if(show_msg["payload"].contains("errors") ) {
         out<<"failed."<<std::endl;
         PLOGE << "workspace syncrhonization request failed: " << show_msg["payload"]["errors"].dump(4);
     }

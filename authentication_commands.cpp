@@ -77,23 +77,23 @@ authentication_commands::create_register_cmd()
         [this](std::ostream& out, int, char**){ 
             m_context.session.disable_input();                
             std::string username, email;
-            std::cout << "Enter login: ";
+            std::cout << "enter login: ";
             std::cin >> username; 
-            std::cout << "Enter email: ";
+            std::cout << "enter email: ";
             std::cin >> email; 
             if(!validate_email(email)) {
-                std::cout << "Not a valid email address. Failed to register, try again..."<<std::endl;
+                std::cout << "not a valid email address. Failed to register, try again..."<<std::endl;
                 m_context.session.enable_input();
                 return;
             }
-            std::cout << "Enter password: ";   
+            std::cout << "enter password: ";   
             // read the spurious return-char at the end 
             getchar();
             std::string password = capture_password();
-            std::cout << "Re-enter password: ";            
+            std::cout << "re-enter password: ";            
             std::string repassword = capture_password();
             if(password != repassword) {
-                std::cout << "Passwords don't match. Failed to register, try again..."<<std::endl;
+                std::cout << "passwords don't match. Failed to register, try again..."<<std::endl;
                 m_context.session.enable_input();
                 return;
             }
@@ -103,17 +103,17 @@ authentication_commands::create_register_cmd()
             auto response = m_context.gql_manager.wait_for_response(msg_id);
             nlohmann::json& register_msg  = response.second;
             if(register_msg["payload"]["data"] != nullptr) {
-                std::cout<<"Registration is successful!"<<std::endl;
+                std::cout<<"registration is successful!"<<std::endl;
                 auto data = register_msg["payload"]["data"]["register"];
                 m_context.logged_in(data["username"], data["token"]);
                 initialize_new_user(username);
             } else 
-            if(register_msg["payload"]["errors"] != nullptr ) {
-                std::cout<<"Registration failed: "<<register_msg["payload"]["errors"][0]["message"]<<std::endl;
+            if(register_msg["payload"].contains("errors") ) {
+                std::cout<<"registration failed: "<<register_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
                 m_context.logged_out();
             }
         },
-        "Log in to metriffic service"
+        "log in to metriffic service"
     );
     return m_register_cmd;
 }
@@ -126,9 +126,9 @@ authentication_commands::create_login_cmd()
         [this](std::ostream& out, int, char**){ 
             m_context.session.disable_input();                
             std::string username;
-            std::cout << "Enter login: ";
+            std::cout << "enter login: ";
             std::cin >> username; 
-            std::cout << "Enter password: ";            
+            std::cout << "enter password: ";            
             // read the spurious return-char at the end 
             getchar();
             std::string password = capture_password();
@@ -139,16 +139,16 @@ authentication_commands::create_login_cmd()
             auto response = m_context.gql_manager.wait_for_response(msg_id);
             nlohmann::json& login_msg  = response.second;
             if(login_msg["payload"]["data"] != nullptr) {
-                std::cout<<"Login successful!"<<std::endl;
+                std::cout<<"login successful!"<<std::endl;
                 auto& data = login_msg["payload"]["data"]["login"];
                 m_context.logged_in(data["username"], data["token"]);
             } else 
-            if(login_msg["payload"]["errors"] != nullptr ) {
-                std::cout<<"Login failed: "<<login_msg["payload"]["errors"][0]["message"]<<std::endl;
+            if(login_msg["payload"].contains("errors") ) {
+                std::cout<<"login failed: "<<login_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
                 m_context.logged_out();
             }
         },
-        "Log in to metriffic service"
+        "log in to metriffic service"
     );
     return m_login_cmd;
 }
@@ -164,11 +164,11 @@ authentication_commands::create_logout_cmd()
             nlohmann::json& logout_msg  = response.second;
 
             if(logout_msg["payload"]["data"] != nullptr) {
-                std::cout<<"User "<<logout_msg["payload"]["data"]["logout"]<<" has successfully logged out..."<<std::endl;
+                std::cout<<"User "<<logout_msg["payload"]["data"]["logout"].get<std::string>()<<" has successfully logged out..."<<std::endl;
                 m_context.logged_out();
             } else 
-            if(logout_msg["payload"]["errors"] != nullptr ) {
-                std::cout<<"Failed to log out: "<<logout_msg["payload"]["errors"][0]["message"]<<std::endl;
+            if(logout_msg["payload"].contains("errors") ) {
+                std::cout<<"Failed to log out: "<<logout_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             }
         },
         "Log out from the service"

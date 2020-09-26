@@ -115,7 +115,7 @@ gql_connection_manager::on_tls_init(websocketpp::connection_hdl)
                          boost::asio::ssl::context::no_sslv3 |
                          boost::asio::ssl::context::single_dh_use);
     } catch (std::exception &e) {
-        std::cout << "Error in context pointer: " << e.what() << std::endl;
+        std::cout << "error in context pointer: " << e.what() << std::endl;
     }
     return ctx;
 }
@@ -578,6 +578,41 @@ gql_connection_manager::wait_for_response(int msg_id)
     }
     // Note: it should never get here...
     return std::make_pair(false, nlohmann::json()) ;
+}
+
+std::pair<bool, std::list<nlohmann::json>> 
+gql_connection_manager::wait_for_response(const std::set<int>& msg_ids)
+{
+    std::list<nlohmann::json> responses;
+    while(true) {
+        
+        if(m_should_stop) {
+            m_should_stop = false;
+            return std::make_pair(true, std::list<nlohmann::json>({nlohmann::json()}));
+        }
+
+        std::list<nlohmann::json> incoming_messages;
+        pull_incoming_messages(incoming_messages);
+        if(!incoming_messages.empty()) {
+            for(auto msg : incoming_messages) {
+                // skip 'command' messages, those are gql service layer.
+                //if(msg["type"] != "data") {
+                //    continue;
+                //}
+                //std::cout<<"XMSG "<<msg.dump(4)<<std::endl;
+                if(msg["id"] != nullptr && msg_ids.count(msg["id"].get<int>())) {
+                    responses.push_back(msg);
+                }
+            }                       
+        }
+        if(responses.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        } else {
+            break;
+        }
+    }
+    // Note: it should never get here...
+    return std::make_pair(false, responses);
 }
 
 

@@ -16,7 +16,7 @@ Context::Context()
 {     
     cli.ExitAction([this](auto& out){ 
                         session.disable_prompt();
-                        std::cout << "Disconnecting from the service...\n"; 
+                        std::cout << "disconnecting from the service...\n"; 
                     });
     gql_manager.set_ext_on_close_handler([this](const std::string&) { 
                             this->on_connection_close(); 
@@ -61,7 +61,7 @@ Context::on_connection_close()
     session.disable_input();
     ios.stop();
     gql_manager.stop();
-    std::cout<<"\nConnection is closed by the server."<<std::endl;
+    std::cout<<"\nconnection is closed by the server."<<std::endl;
 }
 
 void 
@@ -70,7 +70,7 @@ Context::on_connection_fail(const std::string& reason)
     session.disable_input();
     ios.stop();
     gql_manager.stop();
-    std::cout<<"\nFailed to connect to the server: \""<<reason<<"\""<<std::endl;
+    std::cout<<"\nfailed to connect to the server: \""<<reason<<"\""<<std::endl;
 }
 
 } // namespace metriffic

@@ -26,7 +26,7 @@ void sigint_callback_handler(int signum)
         context.session.OutStream()<<std::endl;
         context.session.Prompt();
     } else {
-        std::cout<<"\nUse exit to quit..."<<std::endl;
+        std::cout<<"\nuse exit to quit..."<<std::endl;
         context.session.reset_input();
         context.session.Prompt();   
     }             
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     };
     std::string log_file =  context.settings.log_file();
     plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
-    PLOGV << "Starting metriffic cli.";
+    PLOGV << "starting metriffic cli.";
 
 #ifdef TEST_MODE
     const std::string URI = "ws://127.0.0.1:4000/graphql";
@@ -88,13 +88,13 @@ int main(int argc, char** argv)
                         out<<data_msg["payload"]["data"]["subsData"]["message"].get<std::string>()<<std::endl;
                     } else 
                     if(response.first) {
-                        out<<"Got error in the data stream..."<<std::endl;
+                        out<<"data stream error..."<<std::endl;
                     } else {
                         break;
                     }
                 }
             },
-            "Stream debug messages from the server..." );
+            "stream debug messages from the server..." );
 
     metriffic::authentication_commands auth_cmds(context);
     context.cli.RootMenu() -> Insert(auth_cmds.create_register_cmd());

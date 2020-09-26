@@ -1,5 +1,6 @@
 #include "admin_commands.hpp"
 #include <cxxopts.hpp>
+#include <plog/Log.h>
 #include <regex>
 #include <algorithm>
                         
@@ -29,7 +30,7 @@ admin_commands::print_admin_usage(std::ostream& out)
 void 
 admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
 {
-    out << std::endl << "Printing platform diagnostics." << std::endl;
+    out << std::endl << "printing platform diagnostics:" << std::endl;
     for (const auto& pel : msg["platforms"].items()) {
         const auto& p = pel.value();
         out << "    platform: " << p["name"].get<std::string>() << std::endl;
@@ -42,8 +43,7 @@ admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
         }
     }
     
-
-    out << std::endl << "Printing session diagnostics." << std::endl;    
+    out << std::endl << "printing session diagnostics:" << std::endl;    
     for (const auto& pel : msg["sessions"].items()) {
         const auto& p = pel.value();
         out << "    platform: " << p["name"].get<std::string>() << std::endl;    
@@ -74,45 +74,39 @@ admin_commands::admin_diagnostics(std::ostream& out)
     int sbs_msg_id = m_context.gql_manager.subscribe_to_data_stream();
     int msg_id = m_context.gql_manager.admin_diagnostics();
 
-    //auto response = m_context.gql_manager.wait_for_response(msg_id);
-    //nlohmann::json show_msg = response.second;
-    //if(show_msg["payload"]["data"] != nullptr) {
-    //    std::cout<<"response: "<<show_msg["payload"]["data"].dump(4)<<std::endl;
-        
-
-
         while(true) {
-            auto response = m_context.gql_manager.wait_for_response(sbs_msg_id);
-            nlohmann::json data_msg = response.second;
-            //PLOGV << "admin diagnostics response: " << data_msg.dump(4);
-            std::cout<<"RAW: "<<data_msg.dump(4)<<std::endl;
-            if(data_msg["type"] == "error") {
-                std::cout<<"got error in the data stream (abnormal query?)..."<<std::endl;
-                return;
-            } else 
-            if(data_msg["payload"]["errors"] != nullptr) {
-                std::cout<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
-                return;
-            } else 
-            if(data_msg["payload"]["data"] != nullptr) {
-                auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
-
-                dump_diagnostics(out, msg);
-                break;
-            }  
+            auto response = m_context.gql_manager.wait_for_response({msg_id, sbs_msg_id});
             if(response.first) {
-                std::cout<<"got error in the data stream..."<<std::endl;
+                std::cout<<"interrupted..."<<std::endl;
                 break;
             }
+
+            for(const auto& data_msg : response.second ) {
+                PLOGV << "admin diagnostics response: " << data_msg.dump(4);
+
+                if(!data_msg.contains("payload")) {
+                    std::cout<<" -> NULL" << std::endl;
+                    continue;
+                }
+                if(data_msg["type"] == "error") {
+                    std::cout<<"datastream error (abnormal query?)..."<<std::endl;
+                    return;
+                } else 
+                if(data_msg["payload"].contains("errors")) {
+                    std::cout<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+                    return;
+                }
+                if(data_msg["id"] == sbs_msg_id) {
+                    if(data_msg["payload"].contains("data")) {
+                        auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
+                        dump_diagnostics(out, msg);
+                        return;
+                    } else {
+                        out << "missing diagnostics data (communcation error?)..." << std::endl;
+                    }
+                }
+            }
         }
-
-
-
-
-    //} else 
-    //if(show_msg["payload"]["errors"] != nullptr ) {
-    //    std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
-    //}
 }
 
 

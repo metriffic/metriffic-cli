@@ -39,8 +39,8 @@ query_commands::show_platforms()
                       << ", " << s["description"].get<std::string>() << std::endl;
         }
     } else 
-    if(show_msg["payload"]["errors"] != nullptr ) {
-        std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
+    if(show_msg["payload"].contains("errors") ) {
+        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
@@ -57,8 +57,8 @@ query_commands::show_docker_images(const std::string& platform)
                       << ", platform: " << s["platform"]["name"].get<std::string>() << std::endl;
         }
     } else 
-    if(show_msg["payload"]["errors"] != nullptr ) {
-        std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
+    if(show_msg["payload"].contains("errors") ) {
+        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
@@ -76,8 +76,8 @@ query_commands::show_sessions(const std::string& platform,
                       << "\t : " << s["state"].get<std::string>() << std::endl;
         }
     } else 
-    if(show_msg["payload"]["errors"] != nullptr ) {
-        std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
+    if(show_msg["payload"].contains("errors") ) {
+        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
@@ -90,8 +90,8 @@ query_commands::show_jobs(const std::string& platform, const std::string& sessio
     if(show_msg["payload"]["data"] != nullptr) {
         std::cout<<"response: "<<show_msg["payload"]["data"]<<std::endl;
     } else 
-    if(show_msg["payload"]["errors"] != nullptr ) {
-        std::cout<<"Query failed: "<<show_msg["payload"]["errors"][0]["message"]<<std::endl;
+    if(show_msg["payload"].contains("errors") ) {
+        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 

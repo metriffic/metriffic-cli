@@ -49,7 +49,7 @@ session_commands::session_start_batch(std::ostream& out, const std::string& name
             out<<"error: likely an invalid query..."<<std::endl;
             return;
         } else 
-        if(data_msg["payload"]["errors"] != nullptr) {
+        if(data_msg["payload"].contains("errors")) {
             out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else {
@@ -78,7 +78,7 @@ session_commands::session_start_interactive(std::ostream& out, const std::string
             out<<"error: likely an invalid query..."<<std::endl;
             return;
         } else 
-        if(data_msg["payload"]["errors"] != nullptr) {
+        if(data_msg["payload"].contains("errors")) {
             out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else {
@@ -97,7 +97,7 @@ session_commands::session_start_interactive(std::ostream& out, const std::string
             out<<"got error in the data stream (abnormal query?)..."<<std::endl;
             return;
         } else 
-        if(data_msg["payload"]["errors"] != nullptr) {
+        if(data_msg["payload"].contains("errors")) {
             out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else 
@@ -143,7 +143,7 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
             out << "error: likely an invalid query..." << std::endl;
             return;
         } else 
-        if(data_msg["payload"]["errors"] != nullptr) {
+        if(data_msg["payload"].contains("errors")) {
             out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
             return;
         } else {
@@ -166,7 +166,7 @@ session_commands::session_save(std::ostream& out, const std::string& name,
             out << "error: likely an invalid query..." << std::endl;
             return;
         } else 
-        if(data_msg["payload"]["errors"] != nullptr) {
+        if(data_msg["payload"].contains("errors")) {
             out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
             return;
         } else {
@@ -191,7 +191,7 @@ session_commands::session_status(std::ostream& out, const std::string& name)
                 << "\t state: " << s["state"].get<std::string>() << std::endl;
         }
     } else 
-    if(data_msg["payload"]["errors"] != nullptr) {
+    if(data_msg["payload"].contains("errors")) {
         out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
     }
 }
