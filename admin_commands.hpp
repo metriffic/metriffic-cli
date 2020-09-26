@@ -18,7 +18,9 @@ public:
 
 private:
     void print_admin_usage(std::ostream& out);
-    void admin_diagnostics();
+    void admin_diagnostics(std::ostream& out);
+
+    void dump_diagnostics(std::ostream& out, const nlohmann::json& msg);
 
 private: 
     Context& m_context;
