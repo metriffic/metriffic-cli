@@ -74,39 +74,38 @@ admin_commands::admin_diagnostics(std::ostream& out)
     int sbs_msg_id = m_context.gql_manager.subscribe_to_data_stream();
     int msg_id = m_context.gql_manager.admin_diagnostics();
 
-        while(true) {
-            auto response = m_context.gql_manager.wait_for_response({msg_id, sbs_msg_id});
-            if(response.first) {
-                std::cout<<"interrupted..."<<std::endl;
-                break;
+    while(true) {
+        auto response = m_context.gql_manager.wait_for_response({msg_id, sbs_msg_id});
+        if(response.first) {
+            out << "interrupted..." << std::endl;
+            break;
+        }
+
+        for(const auto& data_msg : response.second ) {
+            PLOGV << "admin diagnostics response: " << data_msg.dump(4);
+
+            if(!data_msg.contains("payload")) {
+                continue;
             }
-
-            for(const auto& data_msg : response.second ) {
-                PLOGV << "admin diagnostics response: " << data_msg.dump(4);
-
-                if(!data_msg.contains("payload")) {
-                    std::cout<<" -> NULL" << std::endl;
-                    continue;
-                }
-                if(data_msg["type"] == "error") {
-                    std::cout<<"datastream error (abnormal query?)..."<<std::endl;
+            if(data_msg["type"] == "error") {
+                out << "datastream error (abnormal query?)..." << std::endl;
+                return;
+            } else 
+            if(data_msg["payload"].contains("errors")) {
+                out << "error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+                return;
+            }
+            if(data_msg["id"] == sbs_msg_id) {
+                if(data_msg["payload"].contains("data")) {
+                    auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
+                    dump_diagnostics(out, msg);
                     return;
-                } else 
-                if(data_msg["payload"].contains("errors")) {
-                    std::cout<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
-                    return;
-                }
-                if(data_msg["id"] == sbs_msg_id) {
-                    if(data_msg["payload"].contains("data")) {
-                        auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
-                        dump_diagnostics(out, msg);
-                        return;
-                    } else {
-                        out << "missing diagnostics data (communcation error?)..." << std::endl;
-                    }
+                } else {
+                    out << "missing diagnostics data (communcation error?)..." << std::endl;
                 }
             }
         }
+    }
 }
 
 
