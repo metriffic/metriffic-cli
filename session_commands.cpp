@@ -59,10 +59,13 @@ session_commands::session_start_batch(std::ostream& out, const std::string& name
 }
 
 void
-session_commands::session_start_interactive(std::ostream& out, const std::string& name, 
-                                            const std::string& dockerimage, const std::string& platform)
+session_commands::session_start_interactive(std::ostream& out, 
+                                            const std::string& name, 
+                                            const std::string& dockerimage, 
+                                            const std::string& platform)
 {
     const int MAX_JOBS = 1;    
+    int sbs_msg_id = m_context.gql_manager.subscribe_to_data_stream();
     int msg_id = m_context.gql_manager.session_start(
                                 name,
                                 platform,
@@ -71,58 +74,97 @@ session_commands::session_start_interactive(std::ostream& out, const std::string
                                 {},
                                 MAX_JOBS,
                                 "");
+    bool in_progress = false;
+
     while(true) {
-        auto response = m_context.gql_manager.wait_for_response(msg_id);
-        nlohmann::json data_msg = response.second;
-        if(data_msg["type"] == "error") {
-            out<<"error: likely an invalid query..."<<std::endl;
-            return;
-        } else 
-        if(data_msg["payload"].contains("errors")) {
-            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
-            return;
-        } else {
-            out<<"bringing up the requested ssh container, this may take a while... (use ctrl-c to cancel) "<<std::endl;
+        auto response = m_context.gql_manager.wait_for_response({msg_id, sbs_msg_id});
+
+        if(response.first) {
+            if(in_progress) {
+                out << std::endl;
+            }
+            out<< "interrupted..." << std::endl;
             break;
         }
-    }
 
-    msg_id = m_context.gql_manager.subscribe_to_data_stream();
-    while(true) {
-        auto response = m_context.gql_manager.wait_for_response(msg_id);
-        nlohmann::json data_msg = response.second;
-        PLOGV << "session start response: " << data_msg.dump(4);
-        //out<<data_msg.dump(4)<<std::endl;
-        if(data_msg["type"] == "error") {
-            out<<"got error in the data stream (abnormal query?)..."<<std::endl;
-            return;
-        } else 
-        if(data_msg["payload"].contains("errors")) {
-            out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
-            return;
-        } else 
-        if(data_msg["payload"]["data"] != nullptr) {
-            auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
+        for(const auto& data_msg : response.second ) {
+            PLOGV << "session start response: " << data_msg.dump(4);
 
-            out << "opening ssh tunnel... ";
-            auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
-                                                                msg["host"].get<std::string>(),
-                                                                msg["port"].get<int>());   
-            if(tunnel_ret.status) {
-                out << "done." << std::endl;
-                out << "container is ready, use the following to ssh:" << std::endl;
-                out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
-                out << "\tpassword:\t" << msg["password"].get<std::string>() << std::endl;            
-                out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
-            } else {
-                out << "failed." << std::endl;
+            if(!data_msg.contains("payload") || data_msg["payload"] == nullptr) {
+                continue;
             }
-        
-            break;
-        }  
-        if(response.first) {
-            out<<"got error in the data stream..."<<std::endl;
-            break;
+            if(data_msg["type"] == "error") {
+                out << "datastream error (abnormal query?)..." << std::endl;
+                return;
+            } else 
+            if(data_msg["payload"].contains("errors")) {
+                out << "error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+                return;
+            }
+
+
+            if(data_msg["id"] == msg_id) {
+                out << "bringing up the requested ssh container, this may take a while..." << std::endl;
+                out << "note: ctrl-c will cancel the request..." << std::endl << std::endl;
+            } else
+            if(data_msg["id"] == sbs_msg_id) {
+                if(data_msg["payload"].contains("data")) {
+                    auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
+
+                    if(msg.contains("pull_type")) {
+                        if(msg["pull_type"] == "data") {
+                            auto data = nlohmann::json::parse(msg["msg"].get<std::string>());
+
+                            if(data["status"] == "Downloading") {
+                                if(in_progress == false) {
+                                    out << "loading docker image. " << std::endl;
+                                }
+                                in_progress = true;
+                                out << "\r\tdownloading: " << data["progress"].get<std::string>() << std::flush; 
+                            }
+                            if(data["status"] == "Download complete") {
+                                out << std::endl; 
+                            }
+
+                            if(data["status"] == "Extracting") {
+                                if(in_progress == false) {
+                                    out << "loading docker image. " << std::endl;
+                                }
+                                out << "\r\textracting:  " << data["progress"].get<std::string>() << std::flush; 
+                            }
+                            if(data["status"] == "Pull complete") {
+                                out << std::endl; 
+                            }
+
+                        } else 
+                        if(msg["pull_type"] == "end") {
+                            out << "docker image is ready. " << std::endl;                            
+                        }
+
+                    } else {
+
+                        out << "container is up. " << std::endl;
+                        out << "opening ssh tunnel... ";
+                        auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
+                                                                            msg["host"].get<std::string>(),
+                                                                            msg["port"].get<int>());   
+                        if(tunnel_ret.status) {
+                            out << "done." << std::endl;
+                            out << "container is ready, use the following to ssh:" << std::endl;
+                            out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
+                            out << "\tpassword:\t" << msg["password"].get<std::string>() << std::endl;            
+                            out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
+                        } else {
+                            out << "failed." << std::endl;
+                        }                
+                        
+                        return;
+
+                    }
+                } else {
+                    out << "missing diagnostics data (communcation error?)..." << std::endl;
+                }
+            }
         }
     }
 }
@@ -157,21 +199,62 @@ void
 session_commands::session_save(std::ostream& out, const std::string& name, 
                                const std::string& dockerimage, const std::string& comment)
 {
+    int sbs_msg_id = m_context.gql_manager.subscribe_to_data_stream();
     int msg_id = m_context.gql_manager.session_save(name, dockerimage, comment);
+    bool in_progress = false;
+   
     while(true) {
-        auto response = m_context.gql_manager.wait_for_response(msg_id);
-        nlohmann::json data_msg = response.second;
-        PLOGV << "session save response: " << data_msg.dump(4);
-        if(data_msg["type"] == "error") {
-            out << "error: likely an invalid query..." << std::endl;
-            return;
-        } else 
-        if(data_msg["payload"].contains("errors")) {
-            out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
-            return;
-        } else {
-            out << data_msg["payload"]["data"]["sessionSave"]["status"].get<std::string>() << std::endl;
+        auto response = m_context.gql_manager.wait_for_response({msg_id, sbs_msg_id});
+        if(response.first) {
+            if(in_progress) {
+                out << std::endl;
+            }
+            out << "interrupted, the docker image will be saved in the background..." << std::endl;
             break;
+        }
+
+        for(const auto& data_msg : response.second ) {
+            PLOGV << "session save response: " << data_msg.dump(4);
+
+            if(!data_msg.contains("payload") || data_msg["payload"] == nullptr) {
+                continue;
+            }
+            if(data_msg["type"] == "error") {
+                out << "datastream error (abnormal query?)..." << std::endl;
+                return;
+            } else 
+            if(data_msg["payload"].contains("errors")) {
+                out << "error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+                return;
+            }
+
+            if(data_msg["id"] == sbs_msg_id) {
+                if(data_msg["payload"].contains("data")) {
+
+                    auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
+                    if(msg["push_type"] == "data") {
+                        auto data = nlohmann::json::parse(msg["msg"].get<std::string>());
+                        if(data["status"] == "Pushing") {
+                            if(in_progress == false) {
+                                out << "preparing for push..." << std::endl;
+                                in_progress = true;
+                            }                            
+                            out << "\r\tpushing: " << data["progress"].get<std::string>() << std::flush; 
+                        }
+                        if(data["status"] == "Pushed") {
+                            out << std::endl; 
+                        }
+
+                    } else 
+                    if(msg["push_type"] == "end") {
+                        out << "docker image is pushed." << std::endl;
+                        return;
+                    }
+
+                } else {
+                    out << "missing diagnostics data (communication error?)..." << std::endl;
+                }
+            }
         }
     }
 }

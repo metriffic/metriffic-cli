@@ -1,0 +1,1000 @@
+sync up
+sync down
+exit
+exit
+login
+sync up
+sync down
+sync up
+exit
+login
+sync up
+sync down
+exit
+exit
+login
+exit
+exit
+exit
+login
+register
+exit
+login
+exit
+session start interactive -d rpi3-basic-runner -n a
+exit
+exit
+exit
+login
+exit
+login
+exit
+register
+exit
+exit
+register
+exit
+register
+exit
+register 
+exit
+register
+ls
+session start -p rpi3 interactive -d rpi3-basic-runner -n a
+exit
+
+login
+login bla
+session start -p rpi3 interactive -d rpi3-basic-runner -n d
+session start -p rpi3 interactive -d rpi3-basic-runner -n e
+session start -p rpi3 interactive -d rpi3-basic-runner -n f
+session start -p rpi3 interactive -d rpi3-basic-runner -n g
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n h
+exit
+exit
+login bla
+session start -p rpi3 interactive -d rpi3-basic-runner -n i
+session start -p rpi3 interactive -d rpi3-basic-runner -n j
+exi
+exit
+login bla
+session start -p rpi3 interactive -d rpi3-basic-runner -n k
+session start -p rpi3 interactive -d rpi3-basic-runner -n l
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n m
+session start -p rpi3 interactive -d rpi3-basic-runner -n n
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n o
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n p
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n q
+session start -p rpi3 interactive -d rpi3-basic-runner -n r
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n r
+session start -p rpi3 interactive -d rpi3-basic-runner -n v
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n w
+session stop -n w
+register
+session start -p rpi3 interactive -d rpi3-basic-runner -n x
+session start -p rpi3 interactive -d rpi3-basic-runner -n y
+exit
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n z
+session start -p rpi3 interactive -d rpi3-basic-runner -n a1
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a2
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a3
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a4
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a5
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a6
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a7
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a8
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a9
+exit
+լօգին
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a10
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a11
+session start -p rpi3 interactive -d rpi3-basic-runner -n a12
+session start -p rpi3 interactive -d rpi3-basic-runner -n a13
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a14
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a15
+session start -p rpi3 interactive -d rpi3-basic-runner -n a16
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a17
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a25
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a36
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a37
+session start -p rpi3 interactive -d rpi3-basic-runner -n a38
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a40
+session stop -n a40
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a41
+ILgBPZgHws5druu6exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a42
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a43
+session stop -n a43
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a60
+session start -p rpi3 interactive -d rpi3-basic-runner -n a61
+session stop -n a61
+session stop -n a60
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a62
+exit
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a63
+session start -p rpi3 interactive -d rpi3-basic-runner -n a64
+session stop -n a64
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a65
+sync down
+session stop -n a65
+sync down
+sync up
+sync 
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a69
+session stop -n a69
+sync down
+exit
+login
+sync down
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic-runner -n a70
+session stop --name a70
+sync down
+exit
+login
+sync down
+exit
+login
+sync down
+exit
+exit
+login
+sync down
+exit
+login
+sync down
+session start -p rpi3 interactive -d rpi3-basic-runner -n a71
+session start -p rpi3 interactive -d rpi3-basic-runner -n a72
+sync down
+exit
+login
+sync down
+exit
+exit
+login
+sync down
+sync up
+sync down
+sync up
+exit
+sync down
+sync up
+exit
+login
+sync up
+sync down
+exit
+login bla
+sync down
+exit
+login
+sync down
+exit
+login
+sync down
+sync up
+exit
+login
+sync up
+exit
+login
+sync up
+sync down
+session start -p rpi3 interactive -d rpi3-basic-runner -n a75
+session stop -n a75
+session start -p rpi3 interactive -d rpi3-basic-runner -n a76
+session start -p rpi3 interactive -d rpi3-basic-runner -n a78
+session start -p coral-imx interactive -d coralimx-basic-runner -n b1
+show docker-images
+show platforms
+session start -p coral-imx interactive -d coralimx-tpu-runner -n b1
+session stop -n b1
+session start -p rpi4 interactive -d rpi4-basic-runner -n c1
+exit
+sync down
+xit
+exit
+workspace
+workspace show
+exit
+workspace show
+workspace set
+workspace set -f ~/bla
+login
+workspace show
+workspace set
+workspace set -f ~/remove_it/bla
+workspace show
+workspace set -f /home/vazgen/remove_it/bla
+workspace show
+workspace sync down
+workspace showexit
+exit
+login
+workspace show
+workspace set -f /home/vazgen/remove_it/bla
+workspace show
+exit
+login
+workspace set -f /home/vazgen/remove_it/bla
+workspace show
+exit
+exit
+exit
+exit
+exit
+login
+session start -p rpi4 interactive -d goo-n c1
+show docker-images
+session start -p coral-imx interactive -d coralimx-tpu c1
+show platforms
+session start -p coral-imx interactive -d coralimx-tpu -n c1
+show platforms
+exit
+login
+login 
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a1
+session stop -n a1
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a2
+session stop -n a2
+session start -p rpi3 interactive -d rpi3-basic -n a3
+exit
+exit
+exit
+exit
+register fuu
+register fii
+register
+workspace sync up
+session start -p rpi3 interactive -d rpi3-basic -n a4
+session start -p rpi3 interactive -d rpi3-basic -n a5
+session start -p rpi3 interactive -d rpi3-basic -n a50
+session stop -n a50
+session start -p jetson-nano interactive -d jetson-nano-pytorch -n a51
+session start -p rpi3 interactive -d rpi3-basic -n a51
+session start -p rpi3 interactive -d rpi3-basic -n a52
+session stop -n a52
+session stop -n a51
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a55
+session start -p rpi3 interactive -d rpi3-basic -n a56
+exit
+exit
+register kaka
+register
+session start -p rpi3 interactive -d rpi3-basic -n a99
+session start -p rpi3 interactive -d rpi3-basic -n a990
+session stop -n a990
+session start -p rpi3 interactive -d rpi3-basic -n a991
+session stop -n a991
+session start -p rpi3 interactive -d rpi3-basic -n a992
+session stop -n a992
+session start -p rpi3 interactive -d rpi3-basic -n a993
+session start -p rpi3 interactive -d rpi3-basic -n a994
+session start -p rpi3 interactive -d rpi3-basic -n a995
+session start -p rpi3 interactive -d rpi3-basic -n a996
+session stop -n a996
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a997
+session stop -n a997
+session start -p jetson-nano interactive -d jetson-nano-torch -n a997
+session start -p jetson-nano interactive -d jetson-nano-torch -n a998
+session stop -n a998
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a999
+session stop -n a999
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a9991
+session stop -n a9991
+register 
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a9992
+workspace sync up
+exit
+register qqq
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a9993
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a9999
+SAajVT3Lh9gf5P
+exit
+login
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a24
+exit
+login
+session start -p jetson-nano interactive -d jetson-nano-tensorflow -n a25
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic -n ax1 -
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r export
+session start -p rpi3 batch -d rpi3-basic -n ax1 --run-script export
+session start -p rpi3 batch -d rpi3-basic -n ax1 
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r sas
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r exitsas
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r bla 
+session start -p rpi3 batch -d rpi3-basic -n ax1 -r bla -i s
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax2
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax3
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax3exit
+exit
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax3exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax4
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax5
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax6
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax7
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax8
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax9
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax0
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax10
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax11
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax12
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax13
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax14
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax15
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax16
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax17
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s,t,u -n ax18
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r bla -i s -n ax19
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash export" -i s -n ax19
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash export" -i s -n ax20
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash export" -i s -n ax21
+session start -p rpi3 interactive -d rpi3-basic -n ax22
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash export" -i s -n ax22
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash export" -i s -n ax23
+session start -p rpi3 interactive -d rpi3-basic -n ax24
+session stop -n ax24
+session start -p rpi3 interactive -d rpi3-basic -n ax25
+session stop -n ax25
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax26
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax27
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax28
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax30
+exit
+login
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a19
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a20
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a21
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a22
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a23
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a244
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a25
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a51
+exit
+login
+exit
+register
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a
+session start -p rpi3 interactive -d rpi3-basic -n b
+workspace show
+workspace sync down
+session stop -n b
+exit
+login
+workspace sync down
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic -n b
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+login
+session status -n v
+session start -p rpi3 interactive -d rpi3-basic -n v
+session status -n v
+session stop -n v
+exit
+session start -p rpi3 interactive -d rpi3-basic -n ax25
+session stop -n ax25
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax26
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax27
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax28
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ax30
+exit
+login
+exit
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a19
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a20
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a21
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a22
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a23
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a244
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a25
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a51
+exit
+login
+exit
+register
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a
+session start -p rpi3 interactive -d rpi3-basic -n b
+workspace show
+workspace sync down
+session stop -n b
+exit
+login
+workspace sync down
+exit
+exit
+login
+session start -p rpi3 interactive -d rpi3-basic -n b
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+exit
+session status -n v
+login
+session status -n v
+session start -p rpi3 interactive -d rpi3-basic -n v
+session status -n v
+session stop -n v
+exit
+login
+session status -n u
+session stop -n u
+session status -n u
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n t
+session status -n t
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n s
+session status -n s
+session stop -n s
+session status -n s
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n q
+session status -n q
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n r
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n p
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n y
+session status -n q
+session status -n y
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n z
+session status -n z
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n zz
+session status -n zz
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n zzz -mm
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n zzz -m 3
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k - 3 
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n zzz -j 3
+session status -n zzz
+session stop -n aa
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n aa -j 3
+session stop -n aa
+session status -n aa
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ab -j 3
+session status -n ab
+session stop -n ab
+session status -n ab
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ac -j 3
+session stop -n ac
+session status -n ac
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ad -j 3
+session status -n ad
+exit
+session stop -n ac
+session status -n ac
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n ad -j 3
+session status -n ad
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i a,b,c,s,j,k -n a -j 3
+session status -n a
+workspace sync down
+exit
+login
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i a,b,c,s,j,k -n a -j 3
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i a,b,c,s,j,k -n b -j 3
+exit
+session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i a,b,c,s,j,k -n b -j 3
+exit
+workspace sync down
+login
+workspace sync down
+exit
+login
+workspace sync down
+exit
+exit
+login
+workspace sync down
+exit
+login test
+exit
+login
+workspace sync down
+session start -p rpi3 interactive -d rpi3-basic -n v
+show docker-images
+session start -p jetson-nano interactive -d jetson-nano-tensorflow  -n u
+session stop -n u
+session stop -n v
+session start -p jetson-nano interactive -d jetson-nano-tensorflow  -n uu
+exit
+session start -p jetson-nano interactive -d jetson-nano-tensorflow  -n uu
+exit
+login
+show platform
+show platforms
+show docker-images
+session start interactive -n a -p rpi3 -d rpi3-basic 
+session start interactive -n a -p jetson-nano -d jetson-nano-torch 
+session start interactive -n b -p jetson-nano -d jetson-nano-torch 
+workspace show 
+
+session stop -n a
+session stop -n b
+session start batch -n c -p jetson-nano -d jetson-nano-torch -r "/bin/bash -c export" -i a,b,c,d,e,f,g,j
+session status -n c
+session start batch -n c -p rpi3 -d rpi3-basic -r "/bin/bash -c export" -i a,b,c,d,e,f,g,j -j 3
+session start batch -n cc -p rpi3 -d rpi3-basic -r "/bin/bash -c export" -i a,b,c,d,e,f,g,j -j 3
+session status -n cc
+session status -n c
+workspace sync down
+exit
+login
+session start interactive -n b -p rpi4 -d rpi4-basic 
+session start interactive -n ab -p rpi4 -d rpi4-basic 
+session stop -n ab
+show docker-images
+session start interactive -n ac -p rpi4 -d rpi4-armnntflite
+session stop -n ac
+session start interactive -n ad -p rpi4 -d rpi4-armnntflite
+session start interactive -n ae -p rpie -d rpi3-basic
+session start interactive -n ae -p rpi3 -d rpi3-basic
+session stop -n ad
+exit
+login
+session stop -n jn1
+session stop -n ci1
+session start interactive -n jn2 -p jetson-nano -d jetson-nano-tensorflow.opencv 
+session start interactive -n rpi32 -p rpi3 -d  rpi3-tensorflow.opencv 
+session start interactive -n rpi33 -p rpi3 -d  rpi3-tensorflow.opencv 
+session start interactive -n rpi41 -p rpi4 -d  rpi4-armnn.tensorflow.opencv 
+exit
+login
+session start interactive -n rpi41 -p rpi4 -d  rpi4-armnn.tensorflow.opencv 
+show docker-images
+session start interactive -n ci21 -p coral-imx -d coralimx-tpu 
+session start interactive -n rpi41 -p rpi4 -d  rpi4-armnn.tensorflow.opencv 
+session start interactive -n rpi42 -p rpi4 -d  rpi4-armnn.tensorflow.opencv 
+workspace sync up
+show sessions
+session stop -n ci21
+session stop -n rpi42
+session stop -n rpi31
+session stop -n rp31
+show sessions
+exit
+session start interactive -p rpi4 -d  rpi4-armnn.tensorflow.opencv -n rpi4.a
+login
+session start interactive -p rpi4 -d  rpi4-armnn.tensorflow.opencv -n rpi4.a
+workspace sync up
+workspace sync down
+exit
+exit 
+login
+show platforms
+show docker-images
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.12
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.13
+session save -n pc.14 -d ubuntu-x.a 
+session save -n pc.13 -d ubuntu-x.a 
+session stop -n pc.13
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.20
+login
+exit
+login
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.50
+session save -n pc.50 -d ubuntu-x.a 
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.51
+session save -n pc.51 -d ubuntu-x.a 
+session stop -n pc.51
+session start interactive -p pc -d ubuntu-x -n pc.52
+session save -n pc.51 -d ubuntu-x.a 
+session save -n pc.52 -d ubuntu-x.a 
+session start interactive -p pc -d ubuntu-x -n pc.53
+session save -n pc.53 -d ubuntu-x.a 
+session stop -n pc.53
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.54
+session save -n pc.54 -d ubuntu-x.a 
+session start interactive -p pc -d ubuntu-x -n pc.55
+session save -d ubuntu-x.a -n pc.56
+session stop -n pc.55
+session start interactive -p pc -d ubuntu-x -n pc.56
+session save -d ubuntu-x.a -n pc.56
+session stop -n pc.56
+session start interactive -p pc -d ubuntu-x -n pc.57
+session save -d ubuntu-x.a -n pc.57
+session start interactive -p pc -d ubuntu-x -n pc.58
+session stop -n pc.57
+session start interactive -p pc -d ubuntu-x -n pc.59
+session save -d ubuntu-x.a -n pc.59
+session stop -n pc.59
+session start interactive -p pc -d ubuntu-x -n pc.60
+session save -d ubuntu-x.a -n pc.60
+session stop -n pc.60
+session start interactive -p pc -d ubuntu-x -n pc.61
+session save -d ubuntu-x.a -n pc.61
+session start interactive -p pc -d ubuntu-x -n pc.62
+session save -d ubuntu-x.b -n pc.62
+session stop -n pc.62
+session start interactive -p pc -d ubuntu-x -n pc.63
+session save -d ubuntu-x.b -n pc.63
+session stop -n pc.63
+session start interactive -p pc -d ubuntu-x -n pc.64
+session save -d ubuntu-x.b -n pc.64
+session stop -n pc.64
+exit
+
+
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+esdfsdf
+exit
+exit
+dsfSDFDFDF
+exisdf
+exit
+sfO[WHRF[OisznJZENT[OHET
+exit
+login
+show platforms
+exit
+show platforms
+login
+show platforms
+exit
+login
+session start interactive -n jn1.bla4 -p jetson-nano -d jetson-nano-tensorflow.opencv
+session stop -n jn1.bla4
+exit
+exit
+exit
+register
+exit
+login
+admin diagnostics
+exit
+session start interactive -n jn1.bla4 -p jetson-nano -d jetson-nano-tensorflow.opencv
+session stop -n jn1.bla4
+exit
+exit
+exit
+register
+exit
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+admin diagnosticsM
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.01
+session start interactive -p pc -d ubuntu-x -n pc.02
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.03
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.04
+session start interactive -p pc -d ubuntu-x -n pc.05
+session start interactive -p pc -d ubuntu-x -n pc.06
+session start interactive -p pc -d ubuntu-x -n pc.07
+session start interactive -p pc -d ubuntu-x -n pc.08
+session start interactive -p pc -d ubuntu-x -n pc.09
+session start interactive -p pc -d ubuntu-x -n pc.10
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.11
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.12
+admin diagnostics
+exit
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.13
+admin diagnostics
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.14
+session start interactive -p pc -d ubuntu-x -n pc.15
+session start interactive -p pc -d ubuntu-x -n pc.16
+admin diagnostics
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.18
+admin diagnostics
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.19
+admin diagnostics
+exit
+exit
+login
+admin diagnostics
+session start interactive -p pc -d ubuntu-x -n pc.20
+session start interactive -p pc -d ubuntu-x -n pc.21
+session start interactive -p pc -d ubuntu-x -n pc.22
+show sessions
+session start interactive -p pc -d ubuntu-x -n pc.x.1
+admin diagnostics
+exit
+exit
+login
+admin diagnostics
+login
+admin diagnostics
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.x.5
+admin diagnostics
+exit
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+exit
+exit
+login
+admin diagnostics
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+exit
+login
+admin diagnostics
+exit
+exit
+show platforms
+login
+show platforms
+show docker-images
+login
+admin diagnostics
+workspace sync down
+exit
+admin diagnostics
+workspace sync down
+exit
+login
+admin diagnostics
+login
+admin diagnostics
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.1
+session start interactive -p pc -d ubuntu-x -n pc.y.2
+session stop -n pc.y.1
+session stop -n pc.y.2
+session start interactive -p pc -d ubuntu-x -n pc.y.3
+session stop -n pc.y.3
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.4
+session start interactive -p pc -d ubuntu-x -n pc.y.5
+session save -n pc.y.5 -d ubla.a
+session stop -n pc.y.5
+exit
+session save -n pc.y.5 -d ubla.
+session stop -n pc.y.5
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.6
+session save -n pc.y.6 -d ubla.b
+exit
+session save -n pc.y.6 -d ubla.b
+login
+session save -n pc.y.6 -d ubla.b
+exit
+exit
+login
+session save -n pc.y.6 -d ubla.b
+exit
+login
+session save -n pc.y.6 -d ubla.b
+exit
+login
+session save -n pc.y.6 -d ubla.b
+exit
+login
+session save -n pc.y.6 -d ubla.b
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.7
+session save -n pc.y.7 -d ubla.b
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.8
+session stop -n pc.y.8
+session start interactive -p pc -d ubuntu-x -n pc.y.9
+session start interactive -p pc -d ubuntu-x -n pc.y.10
+session stop -n pc.y.9 
+session stop -n pc.y.8
+session stop -n pc.y.7
+session save -n pc.y.10 -d ubla.b
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.11
+session stop -n pc.y.11
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.12
+session stop -n pc.y.11
+session stop -n pc.y.12
+session stop -n pc.y.13
+exit
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.13
+session stop -n pc.y.13
+exit
+session start interactive -p pc -d ubuntu-x -n pc.y.15
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.15
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.16
+session stop -n pc.y.16
+exit
+login
+session start interactive -p pc -d ubuntu-x -n pc.y.17
+session stop -n pc.y.16
+session stop -n pc.y.15
+session stop -n pc.y.14
+session start interactive -p pc -d ubuntu-x -n pc.y.18
+session start interactive -p pc -d ubuntu-x -n pc.y.19
+exit
