@@ -54,18 +54,20 @@ admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
         for (const auto& sel : p["sessions"].items()) {
             const auto& s = sel.value();
             out << "            session: " << tc::bold << tc::underline << s["name"].get<std::string>() << tc::reset << std::endl;
-            out << "                 total jobs: " << tc::bold << s["total_jobs"].get<int>() << tc::reset << std::endl;
-            out << "                 running jobs: " << tc::bold << s["running_jobs"].get<int>() << tc::reset << std::endl;
-            out << "                 remaining jobs: " << tc::bold << s["remaining_jobs"].get<int>() << tc::reset << std::endl;
+            out << "                 user:      " << tc::bold << s["user"].get<std::string>() << tc::reset << std::endl;
+            out << "                 total:     " << tc::bold << s["total_jobs"].get<int>() << tc::reset << std::endl;
+            out << "                 running:   " << tc::bold << s["running_jobs"].get<int>() << tc::reset << std::endl;
+            out << "                 remaining: " << tc::bold << s["remaining_jobs"].get<int>() << tc::reset << std::endl;
         }
         out << "        running jobs:" << tc::bold << p["running_jobs"].size() << tc::reset << std::endl;
         for (const auto& rel : p["running_jobs"].items()) {
             const auto& r = rel.value();
             out << "            job: " << tc::bold << tc::underline << r["name"].get<std::string>() << tc::reset << std::endl;
-            out << "                 type: " << tc::bold << r["type"].get<std::string>() << tc::reset << std::endl;
-            out << "                 start: " << tc::bold << r["start"].get<std::string>() << tc::reset << std::endl;
+            out << "                 session:   " << tc::bold << r["session"].get<std::string>() << tc::reset << std::endl;
+            out << "                 type:      " << tc::bold << r["type"].get<std::string>() << tc::reset << std::endl;
+            out << "                 start:     " << tc::bold << r["start"].get<std::string>() << tc::reset << std::endl;
             out << "                 container: " << tc::bold << r["container"].get<std::string>() << tc::reset << std::endl;
-            out << "                 hostname: " << tc::bold << r["board"].get<std::string>() << tc::reset << std::endl;
+            out << "                 hostname:  " << tc::bold << r["board"].get<std::string>() << tc::reset << std::endl;
         }
     }
 
