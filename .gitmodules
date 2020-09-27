@@ -14,3 +14,6 @@
 [submodule "tpt/plog"]
 	path = tpt/plog
 	url = https://github.com/SergiusTheBest/plog.git
+[submodule "tpt/termcolor"]
+	path = tpt/termcolor
+	url = https://github.com/ikalnytskyi/termcolor.git
