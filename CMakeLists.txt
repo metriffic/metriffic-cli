@@ -10,6 +10,7 @@ include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
                     ${PROJECT_SOURCE_DIR}/tpt/cli/include
                     ${PROJECT_SOURCE_DIR}/tpt/json/include
                     ${PROJECT_SOURCE_DIR}/tpt/cxxopts/include
+                    ${PROJECT_SOURCE_DIR}/tpt/termcolor/include
                     ${PROJECT_SOURCE_DIR}/tpt/plog/include)
 
 set(sources 

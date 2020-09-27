@@ -1,11 +1,14 @@
 #include "admin_commands.hpp"
 #include <cxxopts.hpp>
+#include <termcolor/termcolor.hpp>
 #include <plog/Log.h>
 #include <regex>
 #include <algorithm>
                         
 namespace metriffic
 {
+
+namespace tc = termcolor;
 
 template<typename F>
 std::shared_ptr<cli::Command> 
@@ -33,36 +36,36 @@ admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
     out << std::endl << "printing platform diagnostics:" << std::endl;
     for (const auto& pel : msg["platforms"].items()) {
         const auto& p = pel.value();
-        out << "    platform: " << p["name"].get<std::string>() << std::endl;
+        out << "    platform: " << tc::bold << tc::underline <<  tc::blue << p["name"].get<std::string>() << tc::reset << std::endl;
         for (const auto& bel : p["boards"].items()) {
             const auto& b = bel.value();
-            out << "        hostname: " << b["hostname"].get<std::string>() << std::endl;
-            out << "           status: " << (b["alive"] ? "alive" : "dead") << std::endl;
-            out << "           ping: " << b["ping"].get<std::string>() << std::endl;
-            out << "           used: " << (b["used"] ? "yes" : "no") << std::endl;
+            out << "        hostname: " << tc::bold << b["hostname"].get<std::string>() << tc::reset << std::endl;
+            out << "             status: " << tc::bold << (b["alive"] ? "alive" : "dead") << tc::reset << std::endl;
+            out << "             ping: " << tc::bold << b["ping"].get<std::string>() << tc::reset << std::endl;
+            out << "             in use: " << tc::bold << (b["used"] ? "yes" : "no") << tc::reset << std::endl;
         }
     }
     
     out << std::endl << "printing session diagnostics:" << std::endl;    
     for (const auto& pel : msg["sessions"].items()) {
         const auto& p = pel.value();
-        out << "    platform: " << p["name"].get<std::string>() << std::endl;    
-        out << "      submitted sessions:" << std::endl;
+        out << "    platform: " << tc::bold << tc::underline <<  tc::blue << p["name"].get<std::string>() << tc::reset << std::endl;    
+        out << "        submitted sessions:" << tc::bold << p["sessions"].size() << tc::reset << std::endl;
         for (const auto& sel : p["sessions"].items()) {
             const auto& s = sel.value();
-            out << "        session: " << s["name"].get<std::string>() << std::endl;
-            out << "           total jobs: " << s["total_jobs"].get<int>() << std::endl;
-            out << "           running jobs: " << s["running_jobs"].get<int>() << std::endl;
-            out << "           remaining jobs: " << s["remaining_jobs"].get<int>() << std::endl;
+            out << "            session: " << tc::bold << tc::underline << s["name"].get<std::string>() << tc::reset << std::endl;
+            out << "                 total jobs: " << tc::bold << s["total_jobs"].get<int>() << tc::reset << std::endl;
+            out << "                 running jobs: " << tc::bold << s["running_jobs"].get<int>() << tc::reset << std::endl;
+            out << "                 remaining jobs: " << tc::bold << s["remaining_jobs"].get<int>() << tc::reset << std::endl;
         }
-        out << "      running jobs:" << std::endl;
+        out << "        running jobs:" << tc::bold << p["running_jobs"].size() << tc::reset << std::endl;
         for (const auto& rel : p["running_jobs"].items()) {
             const auto& r = rel.value();
-            out << "      job: " << r["name"].get<std::string>() << std::endl;
-            out << "           type: " << r["type"].get<std::string>() << std::endl;
-            out << "           start: " << r["start"].get<std::string>() <<std::endl;
-            out << "           container: " << r["container"].get<std::string>() << std::endl;
-            out << "           hostname: " << r["board"].get<std::string>() << std::endl;
+            out << "            job: " << tc::bold << tc::underline << r["name"].get<std::string>() << tc::reset << std::endl;
+            out << "                 type: " << tc::bold << r["type"].get<std::string>() << tc::reset << std::endl;
+            out << "                 start: " << tc::bold << r["start"].get<std::string>() << tc::reset << std::endl;
+            out << "                 container: " << tc::bold << r["container"].get<std::string>() << tc::reset << std::endl;
+            out << "                 hostname: " << tc::bold << r["board"].get<std::string>() << tc::reset << std::endl;
         }
     }
 
