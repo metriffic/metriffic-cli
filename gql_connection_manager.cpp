@@ -513,8 +513,7 @@ gql_connection_manager::admin_diagnostics()
 
     ss << "mutation{ adminRequest (";
     ss << " command: \"DIAGNOSTICS\"";
-    ss << " data: \"\")";
-        ss << " { status } }";
+    ss << " data: \"\")}";
     
     json ssave_msg = {
         {"id", id},
