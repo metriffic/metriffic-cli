@@ -9,6 +9,25 @@
 namespace metriffic
 {
 
+void
+show_progress(std::ostream& out, const std::string& what, float progress)
+{
+    if(progress < 0.0) progress = 0.0;
+    if(progress > 1.0) progress = 1.0;
+
+    constexpr int BARWIDTH = 30;
+
+    std::cout << "\r\t" << what << " [";
+    int pos = BARWIDTH * progress;
+    for (int i = 0; i < BARWIDTH; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) out << ">";
+        else out << " ";
+    }
+    out << "] " << int(progress * 100.0) << " %";
+    out.flush();
+}
+
 template<typename F>
 std::shared_ptr<cli::Command> 
 create_cmd_helper(const std::string& name,
@@ -111,18 +130,21 @@ session_commands::session_start_interactive(std::ostream& out,
                 if(data_msg["payload"].contains("data")) {
                     auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
 
-                    if(msg.contains("pull_type")) {
-                        if(msg["pull_type"] == "data") {
-                            auto data = nlohmann::json::parse(msg["msg"].get<std::string>());
+                    if(msg.contains("type")) {
+                        if(msg["type"] == "pull_data") {
+                            auto data = nlohmann::json::parse(msg["data"].get<std::string>());
 
                             if(data["status"] == "Downloading") {
                                 if(in_progress == false) {
                                     out << "loading docker image. " << std::endl;
                                 }
                                 in_progress = true;
-                                out << "\r\tdownloading: " << data["progress"].get<std::string>() << std::flush; 
+                                float done = data["progressDetail"]["current"].get<int>();
+                                float total = data["progressDetail"]["total"].get<int>();
+                                show_progress(out, "downloading:", done/total);
                             }
                             if(data["status"] == "Download complete") {
+                                show_progress(out, "downloading:", 1.0);
                                 out << std::endl; 
                             }
 
@@ -130,36 +152,46 @@ session_commands::session_start_interactive(std::ostream& out,
                                 if(in_progress == false) {
                                     out << "loading docker image. " << std::endl;
                                 }
-                                out << "\r\textracting:  " << data["progress"].get<std::string>() << std::flush; 
+                                float done = data["progressDetail"]["current"].get<int>();
+                                float total = data["progressDetail"]["total"].get<int>();
+                                show_progress(out, "extracting: ", done/total);
                             }
                             if(data["status"] == "Pull complete") {
+                                show_progress(out, "extracting: ", 1.0);
                                 out << std::endl; 
                             }
 
                         } else 
-                        if(msg["pull_type"] == "end") {
+                        if(msg["type"] == "pull_success") {
                             out << "docker image is ready. " << std::endl;                            
+                        } else 
+                        if(msg["type"] == "pull_error") {
+                            out << "got error while pulling the image: " << msg["error"].get<std::string>() << std::endl;                            
+                        } else
+                        if(msg["type"] == "exec_success") {
+                            out << "container is up. " << std::endl;
+                            out << "opening ssh tunnel... ";
+                            auto data = msg["data"];
+                            auto tunnel_ret = m_context.ssh.start_ssh_tunnel(
+                                                            name,
+                                                            data["host"].get<std::string>(),
+                                                            data["port"].get<int>());   
+                            if(tunnel_ret.status) {
+                                out << "done." << std::endl;
+                                out << "container is ready, use the following to ssh:" << std::endl;
+                                out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
+                                out << "\tpassword:\t" << data["password"].get<std::string>() << std::endl;            
+                                out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
+                            } else {
+                                out << "failed." << std::endl;
+                            }     
+                            return;           
+                        } else
+                        if(msg["type"] == "start_error") {
+                            // tbd: the detailed error json is here: msg["error"].get<std::string>()
+                            out << "error: failed to start the container due to docker related issue on the board..." << std::endl;
+                            return;    
                         }
-
-                    } else {
-
-                        out << "container is up. " << std::endl;
-                        out << "opening ssh tunnel... ";
-                        auto tunnel_ret = m_context.ssh.start_ssh_tunnel(name,
-                                                                            msg["host"].get<std::string>(),
-                                                                            msg["port"].get<int>());   
-                        if(tunnel_ret.status) {
-                            out << "done." << std::endl;
-                            out << "container is ready, use the following to ssh:" << std::endl;
-                            out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
-                            out << "\tpassword:\t" << msg["password"].get<std::string>() << std::endl;            
-                            out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
-                        } else {
-                            out << "failed." << std::endl;
-                        }                
-                        
-                        return;
-
                     }
                 } else {
                     out << "missing diagnostics data (communcation error?)..." << std::endl;
@@ -232,22 +264,48 @@ session_commands::session_save(std::ostream& out, const std::string& name,
                 if(data_msg["payload"].contains("data")) {
 
                     auto msg = nlohmann::json::parse(data_msg["payload"]["data"]["subsData"]["message"].get<std::string>());
-                    if(msg["push_type"] == "data") {
-                        auto data = nlohmann::json::parse(msg["msg"].get<std::string>());
+                    if(msg["type"] == "push_data") {
+                        auto data = nlohmann::json::parse(msg["data"].get<std::string>());
                         if(data["status"] == "Pushing") {
                             if(in_progress == false) {
-                                out << "preparing for push..." << std::endl;
+                                out << "preparing for save..." << std::endl;
                                 in_progress = true;
                             }                            
-                            out << "\r\tpushing: " << data["progress"].get<std::string>() << std::flush; 
+                            float done = data["progressDetail"]["current"].get<int>();
+                            float total = data["progressDetail"]["total"].get<int>();
+                            show_progress(out, "saving:", done/total);
                         }
                         if(data["status"] == "Pushed") {
+                            show_progress(out, "saving:", 1.0);
                             out << std::endl; 
                         }
 
                     } else 
-                    if(msg["push_type"] == "end") {
-                        out << "docker image is pushed." << std::endl;
+                    if(msg["type"] == "push_success") {
+                        out << "docker image is saved." << std::endl;
+                    } else 
+                    if(msg["type"] == "register_success") {
+                        out << "docker image is registered in the database." << std::endl;
+                        return;    
+                    } else
+                    if(msg["type"] == "commit_error") {
+                        // TBD: more details are msg["error"].get<std::string>() 
+                        out << "error: failed to commit the docker image." << std::endl;
+                        return;
+                    } else
+                    if(msg["type"] == "push_error") {
+                        // TBD: more details are msg["error"].get<std::string>() 
+                        out << "error: failed to push the docker image." << std::endl;
+                        return;
+                    } else
+                    if(msg["type"] == "register_error") {
+                        // TBD: more details are msg["error"].get<std::string>() 
+                        out << "error: failed to register the docker image." << std::endl;
+                        return;
+                    } else
+                    if(msg["type"] == "save_error") {
+                        // TBD: more details are msg["error"].get<std::string>() 
+                        out << "error: failed to save the docker image." << std::endl;
                         return;
                     }
 

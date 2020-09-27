@@ -1,5 +1,0 @@
-session start -p rpi3 batch -d rpi3-basic  -r "/bin/bash -c export" -i s,j,k -n a51
-
-session start -p rpi3 interactive -d rpi3-basic -n ax25 
-
-workspace sync up down

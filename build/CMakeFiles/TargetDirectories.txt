@@ -1,4 +1,0 @@
-/home/vazgen/workspace/METRIFFIC/metriffic-cli/build/CMakeFiles/rebuild_cache.dir
-/home/vazgen/workspace/METRIFFIC/metriffic-cli/build/CMakeFiles/edit_cache.dir
-/home/vazgen/workspace/METRIFFIC/metriffic-cli/build/CMakeFiles/metriffic_local.dir
-/home/vazgen/workspace/METRIFFIC/metriffic-cli/build/CMakeFiles/metriffic.dir
