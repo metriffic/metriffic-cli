@@ -1,10 +1,15 @@
 #include "query_commands.hpp"
 #include <cxxopts.hpp>
+#include <termcolor/termcolor.hpp>
 #include <regex>
 #include <algorithm>
-                        
+#include <map>
+#include <list>
+
 namespace metriffic
 {
+
+namespace tc = termcolor;
 
 template<typename F>
 std::shared_ptr<cli::Command> 
@@ -27,7 +32,7 @@ query_commands::print_show_usage(std::ostream& out)
 }
 
 void
-query_commands::show_platforms()
+query_commands::show_platforms(std::ostream& out)
 {
     int msg_id = m_context.gql_manager.query_platforms();
     auto response = m_context.gql_manager.wait_for_response(msg_id);
@@ -35,63 +40,70 @@ query_commands::show_platforms()
 
     if(show_msg["payload"]["data"] != nullptr) {
         for (auto& s : show_msg["payload"]["data"]["allPlatforms"]) {
-            std::cout << "  " << s["name"].get<std::string>() 
-                      << ", " << s["description"].get<std::string>() << std::endl;
+            out << "    " <<  tc::bold << tc::underline << tc::blue  << s["name"].get<std::string>() << tc::reset 
+                << ",  " << s["description"].get<std::string>() << std::endl;
         }
     } else 
     if(show_msg["payload"].contains("errors") ) {
-        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+        out<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
 void
-query_commands::show_docker_images(const std::string& platform)
+query_commands::show_docker_images(std::ostream& out, const std::string& platform)
 {
     int msg_id = m_context.gql_manager.query_docker_images(platform);
     auto response = m_context.gql_manager.wait_for_response(msg_id);
     nlohmann::json show_msg = response.second;
     //std::cout<<response.second.dump(4)<<std::endl;
     if(show_msg["payload"]["data"] != nullptr) {
-        for (auto& s : show_msg["payload"]["data"]["allDockerImages"]) {
-            std::cout << "  " << s["name"].get<std::string>() 
-                      << ", platform: " << s["platform"]["name"].get<std::string>() << std::endl;
+        std::map<std::string, std::list<std::string>> platform_images;
+        for(auto& s : show_msg["payload"]["data"]["allDockerImages"]) {
+            platform_images[s["platform"]["name"].get<std::string>()].push_back(s["name"].get<std::string>());
+        }
+
+        for(auto& pi : platform_images) {
+            out << "    platform: " << tc::bold << tc::underline << tc::blue << pi.first << tc::reset << std::endl;
+            for (const auto& di : pi.second) {
+                out << "        " << tc::bold << di << tc::reset << std::endl;
+            }
         }
     } else 
     if(show_msg["payload"].contains("errors") ) {
-        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+        out << "error: " << show_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
     }
 }
 
 void
-query_commands::show_sessions(const std::string& platform, 
+query_commands::show_sessions(std::ostream& out, 
+                              const std::string& platform, 
                               const std::vector<std::string>& statuses)
 {
     int msg_id = m_context.gql_manager.query_sessions(platform, statuses);
     auto response = m_context.gql_manager.wait_for_response(msg_id);
-    //std::cout<<response.second.dump(4)<<std::endl;
     nlohmann::json show_msg = response.second;
     if(show_msg["payload"]["data"] != nullptr) {
         for (auto& s : show_msg["payload"]["data"]["allSessions"]) {
-            std::cout << "  " << s["name"].get<std::string>() 
+            out << "  " << s["name"].get<std::string>() 
                       << "\t : " << s["state"].get<std::string>() << std::endl;
         }
     } else 
     if(show_msg["payload"].contains("errors") ) {
-        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+        out<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
 void
-query_commands::show_jobs(const std::string& platform, const std::string& session)
+query_commands::show_jobs(std::ostream& out, const std::string& platform, const std::string& session)
 {
     int msg_id = m_context.gql_manager.query_jobs(platform, session);
     auto response = m_context.gql_manager.wait_for_response(msg_id);
     nlohmann::json show_msg = response.second;
     if(show_msg["payload"]["data"] != nullptr) {
-        std::cout<<"response: "<<show_msg["payload"]["data"]<<std::endl;
+        out<<"response: "<<show_msg["payload"]["data"]<<std::endl;
     } else 
     if(show_msg["payload"].contains("errors") ) {
-        std::cout<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+        out<<"error: "<<show_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
     }
 }
 
@@ -148,18 +160,18 @@ query_commands::create_show_cmd()
                 }
 
                 if(items == "platforms") {
-                    show_platforms();
+                    show_platforms(out);
                 } else 
                 if(items == "docker-images") {
-                    show_docker_images(platform);
+                    show_docker_images(out, platform);
                 } else 
                 if(items == "sessions") {
-                    show_sessions(platform, filter);
+                    show_sessions(out, platform, filter);
                 } else 
                 if(items == "jobs") {
                     std::string platform;
                     std::string session;
-                    show_jobs(platform, session);
+                    show_jobs(out, platform, session);
                 } else {
                     out << CMD_SHOW_NAME << ": unsupported item type, "
                         << "supported types are: 'platforms', 'docker-images', 'sessions', 'jobs'." << std::endl;

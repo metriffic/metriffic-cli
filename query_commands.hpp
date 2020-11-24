@@ -18,11 +18,14 @@ public:
 
 private:
     void print_show_usage(std::ostream& out);
-    void show_platforms();
-    void show_docker_images(const std::string& platform);
-    void show_sessions(const std::string& platform, 
+    void show_platforms(std::ostream& out);
+    void show_docker_images(std::ostream& out, const std::string& platform);
+    void show_sessions(std::ostream& out, 
+                       const std::string& platform, 
                        const std::vector<std::string>& statuses);
-    void show_jobs(const std::string& platform, const std::string& session);
+    void show_jobs(std::ostream& out, 
+                   const std::string& platform, 
+                   const std::string& session);
 
 private: 
     Context& m_context;

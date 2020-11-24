@@ -1,5 +1,6 @@
 #include <regex>
 #include <cli/cli.h>
+#include <termcolor/termcolor.hpp>
 #include <cxxopts.hpp>
 #include <plog/Log.h>
 
@@ -8,6 +9,8 @@
 
 namespace metriffic
 {
+
+namespace tc = termcolor;
 
 void
 show_progress(std::ostream& out, const std::string& what, float progress)
@@ -179,8 +182,8 @@ session_commands::session_start_interactive(std::ostream& out,
                             if(tunnel_ret.status) {
                                 out << "done." << std::endl;
                                 out << "container is ready, use the following to ssh:" << std::endl;
-                                out << "\tcommand:\tssh root@localhost -p" << tunnel_ret.local_port << std::endl;
-                                out << "\tpassword:\t" << data["password"].get<std::string>() << std::endl;            
+                                out << "\tcommand:  " << tc::bold << "ssh root@localhost -p" << tunnel_ret.local_port << tc::reset << std::endl;
+                                out << "\tpassword: " << tc::bold << data["password"].get<std::string>() << tc::reset << std::endl;            
                                 out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
                             } else {
                                 out << "failed." << std::endl;

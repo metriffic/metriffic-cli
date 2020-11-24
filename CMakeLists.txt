@@ -4,6 +4,7 @@ project(metriffic)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE Debug ... FORCE )
 
 find_package(Boost 1.58.0 REQUIRED thread filesystem system chrono)
 include_directories(${PROJECT_SOURCE_DIR}/tpt/websocketpp
