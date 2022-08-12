@@ -27,7 +27,7 @@ void sigint_callback_handler(int signum)
         context.session.Prompt();
     } else {
         std::cout<<"\nuse exit to quit..."<<std::endl;
-        context.session.reset_input();
+        //context.session.reset_input();
         context.session.Prompt();   
     }             
 }

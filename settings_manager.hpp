@@ -1,7 +1,7 @@
 #ifndef SETTINGS_MANAGER_HPP
 #define SETTINGS_MANAGER_HPP
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <nlohmann/json.hpp>
 
 namespace metriffic
@@ -22,7 +22,7 @@ public:
     std::string log_file();
 
 private:
-    std::experimental::filesystem::path m_path;
+    std::filesystem::path m_path;
     nlohmann::json m_settings;
     const std::string WORKSPACE_TAG = "workspace";
     const std::string USERS_TAG = "users";

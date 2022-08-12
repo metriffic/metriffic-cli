@@ -42,14 +42,14 @@ gql_connection_manager::gql_connection_manager()
     // Initialize ASIO
     m_endpoint.init_asio();
 #ifndef TEST_MODE
-    m_endpoint.set_tls_init_handler(bind(&type::on_tls_init,this,::_1));
+    m_endpoint.set_tls_init_handler(bind(&type::on_tls_init,this,_1));
 #endif
     // Register our handlers
-    m_endpoint.set_socket_init_handler(bind(&type::on_socket_init,this,::_1));
-    m_endpoint.set_message_handler(bind(&type::on_message,this,::_1,::_2));
-    m_endpoint.set_open_handler(bind(&type::on_open,this,::_1));
-    m_endpoint.set_close_handler(bind(&type::on_close,this,::_1));
-    m_endpoint.set_fail_handler(bind(&type::on_fail,this,::_1));
+    m_endpoint.set_socket_init_handler(bind(&type::on_socket_init,this,_1));
+    m_endpoint.set_message_handler(bind(&type::on_message,this,_1,_2));
+    m_endpoint.set_open_handler(bind(&type::on_open,this,_1));
+    m_endpoint.set_close_handler(bind(&type::on_close,this,_1));
+    m_endpoint.set_fail_handler(bind(&type::on_fail,this,_1));
 }
 
 void 
