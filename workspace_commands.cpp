@@ -73,7 +73,7 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
 void
 workspace_commands::workspace_set(std::ostream& out, const std::string& path)
 {
-    namespace fs = std::experimental::filesystem;
+    namespace fs = std::filesystem;
 
     if(!m_context.is_logged_in()) {
         out << "please log in first." << std::endl;
