@@ -85,6 +85,7 @@ void
 gql_connection_manager::stop()
 {
     m_should_stop = true;
+    m_endpoint.stop();
 }
 
 void 

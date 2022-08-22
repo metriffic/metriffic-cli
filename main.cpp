@@ -116,9 +116,9 @@ int main(int argc, char** argv)
     context.session.ExitAction(
         [](auto& out) // session exit action
         {
+            context.gql_manager.stop();
             context.session.disable_input();
             context.ios.stop();
-            context.gql_manager.stop();
         }
     );
 
