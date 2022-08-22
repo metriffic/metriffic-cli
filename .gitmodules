@@ -4,8 +4,6 @@
 [submodule "tpt/cli"]
 	path = tpt/cli
 	url = https://github.com/vazk/cli.git
-	branch = metriffic
-	update = rebase
 [submodule "tpt/json"]
 	path = tpt/json
 	url = https://github.com/nlohmann/json.git
