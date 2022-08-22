@@ -22,7 +22,7 @@
 #include <netdb.h>
 #include "ssh_manager.hpp"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 namespace metriffic
 {
@@ -184,7 +184,7 @@ ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
         return false;
     }
     os.sock = connect_to_bastion();
-    if(!os.sock == -1) {
+    if(!(os.sock == -1)) {
         PLOGE << "Error: failed to connect to bastion: " << strerror(errno);
         return false;
     }
