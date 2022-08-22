@@ -25,10 +25,12 @@ include_directories(${OPENSSL_ROOT_DIR}/include
                     ${PROJECT_SOURCE_DIR}/tpt/termcolor/include
                     ${PROJECT_SOURCE_DIR}/tpt/plog/include)
 
+link_directories(${OPENSSL_ROOT_DIR}/lib)
+
 set(sources 
         main.cpp 
         settings_manager.cpp
-        ssh_manager
+        ssh_manager.cpp
         gql_connection_manager.cpp
         context.cpp
         session_commands.cpp
