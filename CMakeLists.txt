@@ -38,6 +38,7 @@ set(sources
         query_commands.cpp
         workspace_commands.cpp
         admin_commands.cpp
+        utils.cpp
 )
 set(libraries 
         ${Boost_LIBRARIES}

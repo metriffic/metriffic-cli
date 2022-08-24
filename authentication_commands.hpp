@@ -15,18 +15,18 @@ class authentication_commands
 public:
     authentication_commands(Context& c);
 
-    std::shared_ptr<cli::Command> create_register_cmd();
     std::shared_ptr<cli::Command> create_login_cmd();
     std::shared_ptr<cli::Command> create_logout_cmd();
-
 private:
-    void initialize_new_user(const std::string& username);
-
+    const std::string CMD_LOGIN_NAME = "login";
+    const std::string CMD_LOGIN_HELP = "log in to metriffic service";
+    const std::vector<std::string> CMD_LOGIN_PARAMDESC = {};
+    const std::string CMD_LOGOUT_NAME = "login";
+    const std::string CMD_LOGOUT_HELP = "Log out from the service";    
+    const std::vector<std::string> CMD_LOGOUT_PARAMDESC = {};
+    
 private: 
     Context& m_context;
-    std::shared_ptr<cli::Command> m_register_cmd;
-    std::shared_ptr<cli::Command> m_login_cmd;
-    std::shared_ptr<cli::Command> m_logout_cmd;
 };
 
 } // namespace metriffic

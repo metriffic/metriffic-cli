@@ -17,7 +17,6 @@ public:
     std::shared_ptr<cli::Command> create_show_cmd();
 
 private:
-    void print_show_usage(std::ostream& out);
     void show_platforms(std::ostream& out);
     void show_docker_images(std::ostream& out, const std::string& platform);
     void show_sessions(std::ostream& out, 
@@ -29,7 +28,6 @@ private:
 
 private: 
     Context& m_context;
-    std::shared_ptr<cli::Command> m_show_cmd;
     const std::string CMD_SHOW_NAME = "show";
     const std::string CMD_SHOW_HELP = "Query supported platforms/docker-images, show sessions and jobs...";
     const std::vector<std::string> CMD_SHOW_PARAMDESC = {

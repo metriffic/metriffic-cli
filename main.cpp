@@ -97,7 +97,6 @@ int main(int argc, char** argv)
             "stream debug messages from the server..." );
 
     metriffic::authentication_commands auth_cmds(context);
-    context.cli.RootMenu() -> Insert(auth_cmds.create_register_cmd());
     context.cli.RootMenu() -> Insert(auth_cmds.create_login_cmd());
     context.cli.RootMenu() -> Insert(auth_cmds.create_logout_cmd());
 

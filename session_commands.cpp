@@ -1,11 +1,12 @@
+#include "session_commands.hpp"
+#include "context.hpp"
+#include "utils.hpp"
+
 #include <regex>
 #include <cli/cli.h>
 #include <termcolor/termcolor.hpp>
 #include <cxxopts.hpp>
 #include <plog/Log.h>
-
-#include "session_commands.hpp"
-#include "context.hpp"
 
 namespace metriffic
 {
@@ -31,25 +32,9 @@ show_progress(std::ostream& out, const std::string& what, float progress)
     out.flush();
 }
 
-template<typename F>
-std::shared_ptr<cli::Command> 
-create_cmd_helper(const std::string& name,
-                  F f,
-                  const std::string& help,
-                  const std::vector<std::string>& par_desc) 
-{
-    return std::make_shared<cli::ShellLikeFunctionCommand<F>>(name, f, help, par_desc); 
-}
-
 session_commands::session_commands(Context& c)
  : m_context(c)
 {}
-
-void
-session_commands::print_session_usage(std::ostream& out)
-{
-    m_session_cmd->Help(out);
-}
 
 void
 session_commands::session_start_batch(std::ostream& out, const std::string& name, const std::string& dockerimage, 
@@ -343,7 +328,7 @@ session_commands::session_status(std::ostream& out, const std::string& name)
 std::shared_ptr<cli::Command> 
 session_commands::create_session_cmd()
 {
-    m_session_cmd = create_cmd_helper(
+    return create_cmd_helper(
         CMD_SESSION_NAME,
         [this](std::ostream& out, int argc, char** argv){ 
 
@@ -466,14 +451,12 @@ session_commands::create_session_cmd()
                 }
             } catch (std::exception& e) {
                 out << CMD_SESSION_NAME << ": " << e.what() << std::endl;
-                print_session_usage(out);
                 return;
             }        
         },
         CMD_SESSION_HELP,
         CMD_SESSION_PARAMDESC
     );
-    return m_session_cmd;
 }
 
 } // namespace metriffic

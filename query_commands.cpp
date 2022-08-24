@@ -1,4 +1,6 @@
 #include "query_commands.hpp"
+#include "utils.hpp"
+
 #include <cxxopts.hpp>
 #include <termcolor/termcolor.hpp>
 #include <regex>
@@ -11,25 +13,9 @@ namespace metriffic
 
 namespace tc = termcolor;
 
-template<typename F>
-std::shared_ptr<cli::Command> 
-create_cmd_helper(const std::string& name,
-                  F f,
-                  const std::string& help,
-                  const std::vector<std::string>& par_desc) 
-{
-    return std::make_shared<cli::ShellLikeFunctionCommand<F>>(name, f, help, par_desc); 
-}
-
 query_commands::query_commands(Context& c)
  : m_context(c)
 {}
-
-void
-query_commands::print_show_usage(std::ostream& out)
-{
-    m_show_cmd->Help(out);
-}
 
 void
 query_commands::show_platforms(std::ostream& out)
@@ -111,7 +97,7 @@ query_commands::show_jobs(std::ostream& out, const std::string& platform, const 
 std::shared_ptr<cli::Command> 
 query_commands::create_show_cmd()
 {
-    m_show_cmd = create_cmd_helper(
+    return create_cmd_helper(
         CMD_SHOW_NAME,
         [this](std::ostream& out, int argc, char** argv){ 
 
@@ -179,14 +165,12 @@ query_commands::create_show_cmd()
                 }
             } catch (std::exception& e) {
                 out << CMD_SHOW_NAME << ": " << e.what() << std::endl;
-                print_show_usage(out);
                 return;
             }        
         },
         CMD_SHOW_HELP,
         CMD_SHOW_PARAMDESC
     );
-    return m_show_cmd;
 }
 
 } // namespace metriffic

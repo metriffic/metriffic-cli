@@ -1,4 +1,5 @@
 #include "workspace_commands.hpp"
+#include "utils.hpp"
 #include <cxxopts.hpp>
 #include <plog/Log.h>
 #include <regex>
@@ -15,25 +16,9 @@
 namespace metriffic
 {
 
-template<typename F>
-std::shared_ptr<cli::Command> 
-create_cmd_helper(const std::string& name,
-                  F f,
-                  const std::string& help,
-                  const std::vector<std::string>& par_desc) 
-{
-    return std::make_shared<cli::ShellLikeFunctionCommand<F>>(name, f, help, par_desc); 
-}
-
 workspace_commands::workspace_commands(Context& c)
  : m_context(c)
 {}
-
-void
-workspace_commands::print_sync_usage(std::ostream& out)
-{
-    m_sync_cmd->Help(out);
-}
 
 std::string 
 workspace_commands::build_rsynch_commandline(std::ostream& out,
@@ -204,7 +189,7 @@ workspace_commands::workspace_sync(std::ostream& out,
 std::shared_ptr<cli::Command> 
 workspace_commands::create_sync_cmd()
 {
-    m_sync_cmd = create_cmd_helper(
+    return create_cmd_helper(
         CMD_WORKSPACE_NAME,
         [this](std::ostream& out, int argc, char** argv){ 
 
@@ -272,14 +257,12 @@ workspace_commands::create_sync_cmd()
 
             } catch (std::exception& e) {
                 out << CMD_WORKSPACE_NAME << ": " << e.what() << std::endl;
-                print_sync_usage(out);
                 return;
             }        
         },
         CMD_WORKSPACE_HELP,
         CMD_WORKSPACE_PARAMDESC
     );
-    return m_sync_cmd;
 }
 
 } // namespace metriffic

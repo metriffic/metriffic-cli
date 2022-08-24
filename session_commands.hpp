@@ -18,7 +18,6 @@ public:
     std::shared_ptr<cli::Command> create_session_cmd();
 
 private:
-    void print_session_usage(std::ostream& out);
     void session_start_batch(std::ostream& out, const std::string& name, const std::string& dockerimage, 
                              const std::string& platform, const std::string& script, int max_jobs,
                              const std::vector<std::string>& datasets);
@@ -31,7 +30,6 @@ private:
     
 private: 
     Context& m_context;
-    std::shared_ptr<cli::Command> m_session_cmd;
 
 private: 
     const std::string MODE_INTERACTIVE = "interactive";

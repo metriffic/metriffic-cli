@@ -1,34 +1,22 @@
 #include "admin_commands.hpp"
+#include "utils.hpp"
+
+#include "utils.hpp"
 #include <cxxopts.hpp>
 #include <termcolor/termcolor.hpp>
 #include <plog/Log.h>
 #include <regex>
 #include <algorithm>
+
                         
 namespace metriffic
 {
 
 namespace tc = termcolor;
 
-template<typename F>
-std::shared_ptr<cli::Command> 
-create_cmd_helper(const std::string& name,
-                  F f,
-                  const std::string& help,
-                  const std::vector<std::string>& par_desc) 
-{
-    return std::make_shared<cli::ShellLikeFunctionCommand<F>>(name, f, help, par_desc); 
-}
-
 admin_commands::admin_commands(Context& c)
  : m_context(c)
 {}
-
-void
-admin_commands::print_admin_usage(std::ostream& out)
-{
-    m_admin_cmd->Help(out);
-}
 
 void 
 admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
@@ -117,7 +105,7 @@ admin_commands::admin_diagnostics(std::ostream& out)
 std::shared_ptr<cli::Command> 
 admin_commands::create_admin_cmd()
 {
-    m_admin_cmd = create_cmd_helper(
+    return create_cmd_helper(
         CMD_ADMIN_NAME,
         [this](std::ostream& out, int argc, char** argv){ 
 
@@ -139,7 +127,10 @@ admin_commands::create_admin_cmd()
                 auto subcommand = result["subcommand"].as<std::string>();
 
                 if(subcommand == CMD_SUB_DIAGNOSTICS) {
-                    admin_diagnostics(out);
+                    admin_register(out);
+                } else 
+                if(subcommand == CMD_SUB_REGISTER) {
+                    admin_register(out);
                 } else {
                     out << CMD_ADMIN_NAME << ": unsupported subcommand type, "
                         << "the only supported subcommand for now is '"<<CMD_SUB_DIAGNOSTICS<<"'." << std::endl;
@@ -147,14 +138,59 @@ admin_commands::create_admin_cmd()
                 }
             } catch (std::exception& e) {
                 out << CMD_ADMIN_NAME << ": " << e.what() << std::endl;
-                print_admin_usage(out);
                 return;
             }        
         },
         CMD_ADMIN_HELP,
         CMD_ADMIN_PARAMDESC
     );
-    return m_admin_cmd;
+}
+
+void admin_commands::admin_register(std::ostream& out)
+{
+    m_context.session.disable_input();                
+    std::string username, email;
+    std::cout << "enter login: ";
+    std::cin >> username; 
+    std::cout << "enter email: ";
+    std::cin >> email; 
+    if(!validate_email(email)) {
+        std::cout << "not a valid email address. Failed to register, try again..."<<std::endl;
+        m_context.session.enable_input();
+        return;
+    }
+    std::cout << "enter password: ";   
+    // read the spurious return-char at the end 
+    getchar();
+    std::string password = capture_password();
+    std::cout << "re-enter password: ";            
+    std::string repassword = capture_password();
+    if(password != repassword) {
+        std::cout << "passwords don't match. Failed to register, try again..."<<std::endl;
+        m_context.session.enable_input();
+        return;
+    }
+    int msg_id = m_context.gql_manager.registr(username, email, password, repassword);                            
+    m_context.session.enable_input();
+
+    auto response = m_context.gql_manager.wait_for_response(msg_id);
+    nlohmann::json& register_msg  = response.second;
+    if(register_msg["payload"]["data"] != nullptr) {
+        std::cout<<"registration is successful!"<<std::endl;
+        auto data = register_msg["payload"]["data"]["register"];
+        m_context.logged_in(data["username"], data["token"]);
+        initialize_new_user(username);
+    } else 
+    if(register_msg["payload"].contains("errors") ) {
+        std::cout<<"registration failed: "<<register_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
+        m_context.logged_out();
+    }
+}
+
+void 
+admin_commands::initialize_new_user(const std::string& username)
+{
+    m_context.settings.create_user(username);
 }
 
 } // namespace metriffic

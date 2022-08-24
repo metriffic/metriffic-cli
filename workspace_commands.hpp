@@ -37,7 +37,6 @@ private:
 
 private: 
     Context& m_context;
-    std::shared_ptr<cli::Command> m_sync_cmd;
 
     const std::string WORKSPACE_SET_CMD = "set";
     const std::string WORKSPACE_SHOW_CMD = "show";
