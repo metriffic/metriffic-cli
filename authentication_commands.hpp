@@ -21,7 +21,7 @@ private:
     const std::string CMD_LOGIN_NAME = "login";
     const std::string CMD_LOGIN_HELP = "log in to metriffic service";
     const std::vector<std::string> CMD_LOGIN_PARAMDESC = {};
-    const std::string CMD_LOGOUT_NAME = "login";
+    const std::string CMD_LOGOUT_NAME = "logout";
     const std::string CMD_LOGOUT_HELP = "Log out from the service";    
     const std::vector<std::string> CMD_LOGOUT_PARAMDESC = {};
     
