@@ -179,18 +179,12 @@ void admin_commands::admin_register(std::ostream& out)
         std::cout<<"registration is successful!"<<std::endl;
         auto data = register_msg["payload"]["data"]["register"];
         m_context.logged_in(data["username"], data["token"]);
-        initialize_new_user(username);
+        m_context.settings.create_user(username);
     } else 
     if(register_msg["payload"].contains("errors") ) {
         std::cout<<"registration failed: "<<register_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
         m_context.logged_out();
     }
-}
-
-void 
-admin_commands::initialize_new_user(const std::string& username)
-{
-    m_context.settings.create_user(username);
 }
 
 } // namespace metriffic

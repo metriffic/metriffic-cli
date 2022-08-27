@@ -60,6 +60,9 @@ int main(int argc, char** argv)
         }
     };
     std::string log_file =  context.settings.log_file();
+    std::string token = context.settings.active_user().second;
+    context.gql_manager.set_authentication_data(token);
+
     plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
     PLOGV << "starting metriffic cli.";
 
