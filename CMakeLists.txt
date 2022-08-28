@@ -61,3 +61,5 @@ set_target_properties(metriffic_local
 
 target_link_libraries(metriffic ${libraries}) 
 target_link_libraries(metriffic_local ${libraries}) 
+
+install(TARGETS metriffic DESTINATION bin)
