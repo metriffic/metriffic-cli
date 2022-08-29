@@ -18,6 +18,7 @@ find_package(Boost 1.58.0 REQUIRED thread filesystem system chrono)
 
 include_directories(${OPENSSL_ROOT_DIR}/include
 					${SSH2_ROOT_DIR}/include
+					${PROJECT_SOURCE_DIR}/tpt/semver/include
 					${PROJECT_SOURCE_DIR}/tpt/websocketpp
                     ${PROJECT_SOURCE_DIR}/tpt/cli/include
                     ${PROJECT_SOURCE_DIR}/tpt/json/include

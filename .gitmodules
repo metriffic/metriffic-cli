@@ -17,3 +17,6 @@
 [submodule "tpt/termcolor"]
 	path = tpt/termcolor
 	url = https://github.com/ikalnytskyi/termcolor.git
+[submodule "tpt/semver"]
+	path = tpt/semver
+	url = https://github.com/Neargye/semver.git

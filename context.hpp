@@ -3,6 +3,7 @@
 
 #include <cli/clilocalsession.h> // include boost asio
 #include <cli/cli.h>
+#include <semver.hpp>
 #include <nlohmann/json.hpp>
 #include "gql_connection_manager.hpp"
 #include "settings_manager.hpp"
@@ -14,6 +15,8 @@ namespace metriffic
 
 struct Context
 {
+    static constexpr semver::version version{0, 0, 1, semver::prerelease::rc, 2};
+
     Context();
     Context(const Context&) = delete;
     
