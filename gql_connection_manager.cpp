@@ -33,7 +33,7 @@ namespace gql_consts
 };
 
 gql_connection_manager::gql_connection_manager() 
- : m_msg_id(0),
+ : m_msg_id(m_handshake_msg_id+1),
    m_should_stop(false)
 {
     m_endpoint.set_access_channels(websocketpp::log::alevel::none);
@@ -157,18 +157,45 @@ gql_connection_manager::on_close(websocketpp::connection_hdl)
 
 void 
 gql_connection_manager::init_connection() 
-{
-    json init_msg = {
-        {"type", "connection_init"},
-        {"payload", {}},
-    };
-    m_connection->send(init_msg.dump(), websocketpp::frame::opcode::text);
+{    
+    send_handshake();
 }
 
 void 
 gql_connection_manager::set_authentication_data(const std::string& token)
 {
     m_token = token;
+}
+
+void 
+gql_connection_manager::send_handshake()
+{
+    json handshake_msg = {
+        {"id", m_handshake_msg_id},
+        {"type", "start"},
+        {"payload", {
+            {"endpoint", "cli"},            
+            {"variables" , {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", "query{ handshake { api_version } }"}
+            }
+        },
+    };
+    m_connection->send(handshake_msg.dump(), websocketpp::frame::opcode::text);
+}    
+
+
+nlohmann::json
+gql_connection_manager::wait_for_handshake()
+{
+    auto response = wait_for_response(m_handshake_msg_id);
+    nlohmann::json data_msg = response.second;
+    if(data_msg["payload"]["data"] != nullptr) {
+        return data_msg["payload"]["data"]["handshake"];
+    } else {
+        return nlohmann::json({});
+    }
 }
 
 int 
@@ -248,7 +275,6 @@ gql_connection_manager::logout()
     m_connection->send(logout_msg.dump(), websocketpp::frame::opcode::text);
     return id;
 }
-
 
 int
 gql_connection_manager::query_platforms() 
@@ -530,7 +556,6 @@ gql_connection_manager::admin_diagnostics()
         },
     };
     m_connection->send(ssave_msg.dump(), websocketpp::frame::opcode::text);
-    return id;
     return id;
 }
 

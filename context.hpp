@@ -15,7 +15,8 @@ namespace metriffic
 
 struct Context
 {
-    static constexpr semver::version version{0, 0, 1, semver::prerelease::rc, 2};
+    static constexpr semver::version version{0, 0, 2, semver::prerelease::rc, 2};
+    static constexpr semver::version api_version{0, 0, 1};
 
     Context();
     Context(const Context&) = delete;

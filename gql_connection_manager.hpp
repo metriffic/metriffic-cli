@@ -45,7 +45,11 @@ private:
     void init_connection();    
 
 public:
+    void send_handshake();
+    nlohmann::json wait_for_handshake();
+
     void set_authentication_data(const std::string& token);
+
     int registr(const std::string& username, const std::string& email,
                 const std::string& password, const std::string& repassword);
     int login(const std::string& username, const std::string& password);
@@ -87,7 +91,10 @@ private:
     std::string     m_token;
 
     std::mutex      m_mutex;
+
+    const int       m_handshake_msg_id = 0;
     int             m_msg_id;
+    
     std::list<nlohmann::json> m_incoming_messages;
 
     bool m_should_stop;

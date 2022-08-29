@@ -1,5 +1,6 @@
 
 #include <nlohmann/json.hpp>
+#include <semver.hpp>
 #include <cxxopts.hpp>
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>
@@ -36,11 +37,46 @@ void sigpipe_callback_handler(int signum)
 {
 }
 
-int main(int argc, char** argv)
+void validate_handshake()
 {
-    signal(SIGINT, sigint_callback_handler);
-    signal(SIGPIPE, sigpipe_callback_handler);
+    auto handshake = context.gql_manager.wait_for_handshake();
+   
+    const auto server_api_version = handshake["api_version"].is_null() ? "unknown" : handshake["api_version"].get<std::string>();
+    if(server_api_version == "unknown" || context.api_version != semver::version(server_api_version)) {
+        std::cout<<"\rsupported API version ("<<context.api_version.to_string()<<") doesn't match the version of the back-end ("
+                 <<server_api_version<<"), please update the tool..."<<std::endl;
+        context.session.Exit();        
+    }
+}
 
+void process_command_line(int argc, char** argv)
+{
+    try {
+        cxxopts::Options options(argv[0], " - command line options");
+        options.add_options()
+            ("v,version", "Print version information and exit.")
+            ("c,connectivity-test", "Establish a test-connection to the metriffic server and exit.");
+
+        auto result = options.parse(argc, argv);
+
+        if (result.count("version")) {
+            std::cout << "\rcli tool:    " << context.version << std::endl;
+            std::cout << "\rbackend-end: "<< context.api_version << std::endl;
+            context.session.Exit();
+        }
+        if (result.count("connectivity-test")) {
+            std::cout << "\rsuccessfully connected to metriffic back-end, back-end version: "<< context.api_version.to_string() << "." << std::endl;
+            context.session.Exit();
+        }
+    } 
+    catch (const cxxopts::exceptions::exception& e) {
+        std::cout << "\rerror parsing options: " << e.what() << std::endl;
+        context.session.Exit();
+    }
+}
+
+void setup_logger() 
+{
     struct log_formatter
     {
     public:
@@ -64,7 +100,15 @@ int main(int argc, char** argv)
     context.gql_manager.set_authentication_data(token);
 
     plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
+
     PLOGV << "starting metriffic cli.";
+}
+
+
+int main(int argc, char** argv)
+{
+    signal(SIGINT, sigint_callback_handler);
+    signal(SIGPIPE, sigpipe_callback_handler);
 
 #ifdef TEST_MODE
     const std::string URI = "ws://127.0.0.1:4000/graphql";
@@ -72,6 +116,20 @@ int main(int argc, char** argv)
     const std::string URI = "wss://api.metriffic.com/graphql";
 #endif
     context.start_communication(URI);
+    context.session.ExitAction(
+        [](auto& out) // session exit action
+        {
+            context.gql_manager.stop();
+            context.session.disable_input();
+            context.ios.stop();
+        }
+    );
+
+    validate_handshake();
+
+    process_command_line(argc, argv);
+
+    setup_logger();
 
     context.cli.RootMenu() -> Insert(
             "message_stream",
@@ -114,15 +172,6 @@ int main(int argc, char** argv)
 
     metriffic::admin_commands admin_cmds(context);
     context.cli.RootMenu() -> Insert(admin_cmds.create_admin_cmd());
-
-    context.session.ExitAction(
-        [](auto& out) // session exit action
-        {
-            context.gql_manager.stop();
-            context.session.disable_input();
-            context.ios.stop();
-        }
-    );
 
 #if BOOST_VERSION < 106600
     boost::asio::io_service::work work(context.ios);
