@@ -120,14 +120,15 @@ admin_commands::create_admin_cmd()
                 
 
                 if(result.count("subcommand") != 1) {
-                    out << CMD_ADMIN_NAME << ": 'subcommand' (currently only '"<<CMD_SUB_DIAGNOSTICS<<"') "
+                    out << CMD_ADMIN_NAME << ": 'subcommand' (currently only '"<<CMD_SUB_DIAGNOSTICS<<"' and '"
+                        << CMD_SUB_REGISTER <<"') "
                         << "is a mandatory argument." << std::endl;
                     return;
                 }
                 auto subcommand = result["subcommand"].as<std::string>();
 
                 if(subcommand == CMD_SUB_DIAGNOSTICS) {
-                    admin_register(out);
+                    admin_diagnostics(out);
                 } else 
                 if(subcommand == CMD_SUB_REGISTER) {
                     admin_register(out);
