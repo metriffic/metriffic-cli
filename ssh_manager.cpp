@@ -98,42 +98,37 @@ ssh_manager::ssh_tunnel::connect_to_bastion()
 bool
 ssh_manager::ssh_tunnel::setup_listening_socket()
 {
-    m_listen_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(m_listen_sock == -1) {
-        PLOGE << "socket: " << strerror(errno);
-        return false;
-    }
+    struct sockaddr_in serv_addr;
 
-    static int sockopt = 1;
-    setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+    for (m_local_port = m_local_port_range.first; m_local_port <= m_local_port_range.second; ++m_local_port) {
+        m_listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (m_listen_sock < 0) {
+            std::cerr << "Error opening socket." << std::endl;
+            continue;
+        }
+        static int sockopt = 1;
+        setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
+        memset(&serv_addr, 0, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_addr.s_addr = inet_addr(m_local_host.c_str());
+        serv_addr.sin_port = htons(m_local_port);
 
-    unsigned int listen_port = m_local_port_range.first-1;
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr(m_local_host.c_str());
-    socklen_t sinlen = sizeof(sin);
-    if(INADDR_NONE == sin.sin_addr.s_addr) {
-        PLOGE << "inet_addr: " << strerror(errno);
-        return false;
-    }
 
-    while(listen_port++ < m_local_port_range.second) {
-        sin.sin_port = htons(listen_port);
-        if(-1 == bind(m_listen_sock, (struct sockaddr *)&sin, sinlen)) {
+        if(-1 == bind(m_listen_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) {
             PLOGE << "bind: " << strerror(errno);
+            close(m_listen_sock);
             continue;
         }
         if(-1 == listen(m_listen_sock, 2)) {
             PLOGE << "listen: " << strerror(errno);
+            close(m_listen_sock);
             continue;
         }
-        m_local_port = listen_port; 
+        PLOGV << "Server listening on port " << m_local_port << std::endl;
         return true;
     }
     return false;    
 }
-
-
 
 ssh_manager::ssh_tunnel_ret
 ssh_manager::ssh_tunnel::start()
@@ -218,18 +213,31 @@ ssh_manager::ssh_tunnel::run()
     one_session os;
     struct sockaddr_in sin;
     socklen_t sinlen = sizeof(sin);
-    
-    while(m_should_stop == false) {        
-        struct timeval tv;
-        tv.tv_sec = 0;
-        tv.tv_usec = 1000000;
-        fd_set allset;
-        int maxfd = m_listen_sock;		
+
+    fd_set allset;
+    struct timeval tv;
+    tv.tv_sec = 0; 
+    tv.tv_usec = 100000;	
+
+
+    while(m_should_stop == false) {    
         FD_ZERO(&allset);
         FD_SET(m_listen_sock, &allset);
-        int nready = select(maxfd+1, &allset, NULL, NULL, &tv);
-        
-        if(FD_ISSET(m_listen_sock, &allset)) {
+        int max_fd = m_listen_sock;
+
+        int activity = select(max_fd + 1, &allset, nullptr, nullptr, &tv);
+
+        if (activity < 0 && errno != EINTR) {
+            PLOGE << "select: " << strerror(errno);
+            break;
+        }
+
+        if (activity == 0) {
+            // Timeout, no activity
+            continue;
+        }
+
+        if (FD_ISSET(m_listen_sock, &allset)) {
             os.forwardsock = accept(m_listen_sock, (struct sockaddr *)&sin, &sinlen);
 
             if(os.forwardsock < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
