@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "settings_manager.hpp"
+#include "key_generator.hpp"
 
 namespace fs = std::filesystem;
 
@@ -88,6 +89,18 @@ settings_manager::log_file()
     return m_path.parent_path() / "cli.log";
 }
 
+std::string
+settings_manager::jump_key_file(const std::string& username)
+{
+    return m_path.parent_path() / username / KEYS_TAG / "jump_key";
+}
+
+std::string
+settings_manager::user_key_file(const std::string& username)
+{
+    return m_path.parent_path() / username / KEYS_TAG / "user_key";
+}
+
 
 void 
 settings_manager::load()
@@ -116,4 +129,17 @@ settings_manager::create_user(const std::string& username)
     save();
 }
 
+std::tuple<bool, std::string> 
+settings_manager::generate_keys(const std::string& username)
+{
+    auto path = m_path.parent_path() / username / KEYS_TAG;
+    fs::create_directories(path);
+
+    const std::string jump_key = jump_key_file(username);
+    metriffic::key_generator::generate_key_pair(jump_key, 1024, "");
+    const std::string user_key = user_key_file(username);
+    metriffic::key_generator::generate_key_pair(user_key, 1024, "root@localhost");
+
+    return std::make_tuple(true, "");
+}
 } // namespace metriffic

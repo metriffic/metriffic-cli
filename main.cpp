@@ -10,6 +10,7 @@
 #include "query_commands.hpp"
 #include "workspace_commands.hpp"
 #include "admin_commands.hpp"
+//#include "test_commands.hpp"
 #include "context.hpp"
 
 using namespace cli;
@@ -55,23 +56,29 @@ void process_command_line(int argc, char** argv)
         cxxopts::Options options(argv[0], " - command line options");
         options.add_options()
             ("v,version", "Print version information and exit.")
-            ("c,connectivity-test", "Establish a test-connection to the metriffic server and exit.");
+            ("g,generate-keys", "Generate pairs of keys for user authentication.", cxxopts::value<std::string>());
 
         auto result = options.parse(argc, argv);
 
         if (result.count("version")) {
             std::cout << "\rcli tool:    " << context.version << std::endl;
-            std::cout << "\rbackend-end: "<< context.api_version << std::endl;
-            context.session.Exit();
+            // std::cout << "\rbackend-end: "<< context.api_version << std::endl;
+            exit(0);
         }
-        if (result.count("connectivity-test")) {
-            std::cout << "\rsuccessfully connected to metriffic back-end, back-end version: "<< context.api_version.to_string() << "." << std::endl;
-            context.session.Exit();
+        if (result.count("generate-keys")) {
+            const std::string username = result["generate-keys"].as<std::string>();
+            bool status = true;
+            std::string error = "";
+            std::tie(status, error) = context.settings.generate_keys(username);
+            std::cout << "successfully generated jump and user keys for username "<< username << ":" << std::endl;
+            std::cout << "   jump keys:" << context.settings.jump_key_file(username)<<"{.pub}"<<std::endl;
+            std::cout << "   user keys:" << context.settings.user_key_file(username)<<"{.pub}"<<std::endl;
+            exit(0);
         }
     } 
     catch (const cxxopts::exceptions::exception& e) {
         std::cout << "\rerror parsing options: " << e.what() << std::endl;
-        context.session.Exit();
+        exit(1);
     }
 }
 
@@ -110,6 +117,8 @@ int main(int argc, char** argv)
     signal(SIGINT, sigint_callback_handler);
     signal(SIGPIPE, sigpipe_callback_handler);
 
+    process_command_line(argc, argv);
+
 #ifdef TEST_MODE
     const std::string URI = "ws://127.0.0.1:4000/graphql";
 #else
@@ -126,8 +135,6 @@ int main(int argc, char** argv)
     );
 
     validate_handshake();
-
-    process_command_line(argc, argv);
 
     setup_logger();
 
@@ -178,6 +185,9 @@ int main(int argc, char** argv)
 #else
     auto work = boost::asio::make_work_guard(context.ios);
 #endif    
+
+    //metriffic::test_commands test_cmds(context);
+    //context.cli.RootMenu() -> Insert(test_cmds.create_test_cmd());
 
     context.ios.run();
 
