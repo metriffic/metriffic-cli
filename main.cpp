@@ -70,9 +70,9 @@ void process_command_line(int argc, char** argv)
             bool status = true;
             std::string error = "";
             std::tie(status, error) = context.settings.generate_keys(username);
-            std::cout << "successfully generated jump and user keys for username "<< username << ":" << std::endl;
-            std::cout << "   jump keys:" << context.settings.jump_key_file(username)<<"{.pub}"<<std::endl;
-            std::cout << "   user keys:" << context.settings.user_key_file(username)<<"{.pub}"<<std::endl;
+            std::cout << "successfully generated bastion and user keys for username "<< username << ":" << std::endl;
+            std::cout << "   bastion keys: " << context.settings.bastion_key_file(username)<<"{.pub}"<<std::endl;
+            std::cout << "   user keys: " << context.settings.user_key_file(username)<<"{.pub}"<<std::endl;
             exit(0);
         }
     } 

@@ -117,7 +117,7 @@ workspace_commands::workspace_sync(std::ostream& out,
         auto sync_username = m_context.username;
         auto sync_password = show_msg["payload"]["data"]["rsyncRequest"].get<std::string>();
         out<<"opening ssh tunnel... ";
-        auto tunnel_ret = m_context.ssh.start_rsync_tunnel(sync_username);
+        auto tunnel_ret = m_context.ssh.start_rsync_tunnel(sync_username, m_context.settings.bastion_key_file(sync_username));
         if(tunnel_ret.status) {
             out<<"done."<<std::endl;
 

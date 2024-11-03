@@ -29,7 +29,8 @@ namespace metriffic
 
 ssh_manager::ssh_tunnel::ssh_tunnel(
                const std::string& username,
-               const std::string& password,
+               const std::string& bastion_public_key,
+               const std::string& bastion_private_key,
                const std::string& local_host,
                std::pair<unsigned int, unsigned int> local_port_range,
                const std::string& bastion_host,
@@ -38,7 +39,8 @@ ssh_manager::ssh_tunnel::ssh_tunnel(
                const unsigned int dest_port) 
   : m_should_stop(false),
     m_username(username),
-    m_password(password),
+    m_bastion_public_key(bastion_public_key),
+    m_bastion_private_key(bastion_private_key),
     m_local_host(local_host),
     m_local_port_range(local_port_range),
     m_bastion_host(bastion_host),
@@ -198,11 +200,16 @@ ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
         PLOGE << "Error: failed to start up SSH session: " << rc;
         return false;
     }
-    if(libssh2_userauth_password(os.session, m_username.c_str(), m_password.c_str())) {
-        PLOGE << "Error: authentication by password failed!";
+
+    if(libssh2_userauth_publickey_fromfile(os.session, 
+                                           m_username.c_str(), 
+                                           m_bastion_public_key.c_str(), 
+                                           m_bastion_private_key.c_str(), 
+                                           "")) {
+        PLOGE << "Error: authentication by private key failed!";
         return false;
     }
-    PLOGV << "Authentication by password succeeded!";
+    PLOGV << "Authentication by private key is succeeded!";
     
     return true;
 }
@@ -374,13 +381,16 @@ ssh_manager::~ssh_manager()
 }
 
 ssh_manager::ssh_tunnel_ret 
-ssh_manager::start_ssh_tunnel(const std::string& session_name,                              
+ssh_manager::start_ssh_tunnel(const std::string& session_name,
+                              const std::string& bastion_username,
+                              const std::string& bastion_key_file,
                               const std::string& desthost,
                               const unsigned int destport)
 {
     PLOGV << "Starting ssh tunnel for session \'" << session_name << "\'... ";
-    auto tunnel = std::make_unique<ssh_tunnel>(BASTION_SSH_USERNAME, 
-                                               BASTION_SSH_PASSWORD, 
+    auto tunnel = std::make_unique<ssh_tunnel>(bastion_username, 
+                                               bastion_key_file + ".pub",
+                                               bastion_key_file,
                                                LOCAL_SSH_HOSTNAME,
                                                std::make_pair(LOCAL_SSH_PORT_START, LOCAL_SSH_PORT_START+1000),
                                                BASTION_SSH_HOSTNAME,

@@ -38,7 +38,8 @@ private:
             std::thread io_thread;
         };
         ssh_tunnel(const std::string& username,
-                   const std::string& password,
+                   const std::string& bastion_public_key,
+                   const std::string& bastion_private_key,
                    const std::string& local_host,
                    std::pair<unsigned int, unsigned int> local_port_range,
                    const std::string& bastion_host,
@@ -61,7 +62,8 @@ private:
 
         bool m_should_stop;
         std::string m_username;
-        std::string m_password;
+        std::string m_bastion_public_key;
+        std::string m_bastion_private_key;
         std::string m_local_host;
         std::pair<unsigned int, unsigned int> m_local_port_range;
         std::string m_bastion_host;
@@ -78,13 +80,18 @@ public:
     ~ssh_manager();
 
     ssh_tunnel_ret start_ssh_tunnel(const std::string& session_name,
+                                    const std::string& bastion_username,
+                                    const std::string& bastion_key_file,
                                     const std::string& desthost,
                                     const unsigned int destport);  
     void stop_ssh_tunnel(const std::string& session_name);  
     
-    ssh_tunnel_ret start_rsync_tunnel(const std::string& username)
+    ssh_tunnel_ret start_rsync_tunnel(const std::string& username,
+                                      const std::string& bastion_key_file)
     {
         return start_ssh_tunnel("rsync." + username, 
+                                username,
+                                bastion_key_file,
                                 RSYNC_SERVER_HOSTNAME, 
                                 RSYNC_SERVER_PORT);
     }
@@ -99,9 +106,6 @@ private:
     const unsigned int LOCAL_SSH_PORT_START   = 2000;
     const std::string  BASTION_SSH_HOSTNAME = "metriffic.com";
     const unsigned int BASTION_SSH_PORT = 2222;
-
-    const std::string  BASTION_SSH_USERNAME = "ssh_user";
-    const std::string  BASTION_SSH_PASSWORD = "ssh_user";
 
     const std::string  RSYNC_SERVER_HOSTNAME = "metriffic";
     const unsigned int RSYNC_SERVER_PORT = 7000;

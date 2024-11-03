@@ -23,7 +23,7 @@ public:
     std::pair<std::string, std::string> active_user();
     bool user_config_exists(const std::string& username);
     std::string log_file();
-    std::string jump_key_file(const std::string& username);
+    std::string bastion_key_file(const std::string& username);
     std::string user_key_file(const std::string& username);
     // mutators
     bool set_workspace(const std::string& username, const std::string& path);

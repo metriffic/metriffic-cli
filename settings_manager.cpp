@@ -90,9 +90,9 @@ settings_manager::log_file()
 }
 
 std::string
-settings_manager::jump_key_file(const std::string& username)
+settings_manager::bastion_key_file(const std::string& username)
 {
-    return m_path.parent_path() / username / KEYS_TAG / "jump_key";
+    return m_path.parent_path() / username / KEYS_TAG / "bastion_key";
 }
 
 std::string
@@ -135,8 +135,8 @@ settings_manager::generate_keys(const std::string& username)
     auto path = m_path.parent_path() / username / KEYS_TAG;
     fs::create_directories(path);
 
-    const std::string jump_key = jump_key_file(username);
-    metriffic::key_generator::generate_key_pair(jump_key, 1024, "");
+    const std::string bastion_key = bastion_key_file(username);
+    metriffic::key_generator::generate_key_pair(bastion_key, 1024, username);
     const std::string user_key = user_key_file(username);
     metriffic::key_generator::generate_key_pair(user_key, 1024, "root@localhost");
 

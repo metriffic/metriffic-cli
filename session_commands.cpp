@@ -162,13 +162,15 @@ session_commands::session_start_interactive(std::ostream& out,
                             auto data = msg["data"];
                             auto tunnel_ret = m_context.ssh.start_ssh_tunnel(
                                                             name,
+                                                            m_context.username,
+                                                            m_context.settings.bastion_key_file(m_context.username),
                                                             data["host"].get<std::string>(),
                                                             data["port"].get<int>());   
                             if(tunnel_ret.status) {
                                 out << "done." << std::endl;
-                                out << "container is ready, use the following to ssh:" << std::endl;
-                                out << "\tcommand:  " << tc::bold << "ssh root@localhost -p" << tunnel_ret.local_port << tc::reset << std::endl;
-                                out << "\tpassword: " << tc::bold << data["password"].get<std::string>() << tc::reset << std::endl;            
+                                out << "the container is ready, you can ssh to it by running:" << std::endl;
+                                out << "\t" << tc::bold << "ssh -i " << m_context.settings.user_key_file(m_context.username) << 
+                                       " root@localhost -p" << tunnel_ret.local_port << tc::reset << std::endl;
                                 out << "note: stopping this session will terminate the tunnel and interactive container." << std::endl;
                             } else {
                                 out << "failed." << std::endl;
