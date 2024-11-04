@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <libssh2.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <vector>
