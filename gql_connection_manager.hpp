@@ -52,7 +52,7 @@ public:
 
     int registr(const std::string& username, const std::string& email,
                 const std::string& password, const std::string& repassword);
-    int login(const std::string& username, const std::string& password);
+    int login(const std::string& username, const std::string& token);
     int logout();
 
     int query_platforms();

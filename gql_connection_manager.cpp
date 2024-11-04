@@ -229,14 +229,14 @@ gql_connection_manager::registr(const std::string& username, const std::string& 
 }
 
 int 
-gql_connection_manager::login(const std::string& username, const std::string& password)
+gql_connection_manager::login(const std::string& username, const std::string& token)
 {
     int id = m_msg_id++;
     std::stringstream ss;
     ss << "mutation {login(username: \""
         << username
-        << "\" password: \""
-        << password
+        << "\" token: \""
+        << token
         << "\") {id username token}}";
     json login_msg = {
         {"id", id},
