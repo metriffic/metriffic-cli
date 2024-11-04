@@ -28,7 +28,6 @@ private:
     void print_sync_usage(std::ostream& out);
     std::string build_rsynch_commandline(std::ostream& out,
                                          const std::string& username, 
-                                         const std::string& password,
                                          const std::string& dest_host,
                                          unsigned int local_port,
                                          bool enable_delete,

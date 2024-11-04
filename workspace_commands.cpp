@@ -23,7 +23,6 @@ workspace_commands::workspace_commands(Context& c)
 std::string 
 workspace_commands::build_rsynch_commandline(std::ostream& out,
                                              const std::string& username, 
-                                             const std::string& password,
                                              const std::string& dest_host,
                                              unsigned int local_port,
                                              bool enable_delete,
@@ -33,7 +32,7 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
     std::stringstream ss;
     // format: "[%t]:%o:%f:Last Modified %M\"
     ss << "rsync -arvz --out-format=\"processing: %f\"  "
-        << " -e 'sshpass -p " << password << " ssh -p " << local_port << "'"
+        << " -e 'ssh  -i ~/.config/metriffic/admin/keys/user_key  -p " << local_port << "'"
         << " --progress ";
     if(enable_delete) {
         ss << " --delete ";
@@ -115,7 +114,7 @@ workspace_commands::workspace_sync(std::ostream& out,
     if(show_msg["payload"]["data"] != nullptr) {
         out<<"done."<<std::endl;
         auto sync_username = m_context.username;
-        auto sync_password = show_msg["payload"]["data"]["rsyncRequest"].get<std::string>();
+        bool status = show_msg["payload"]["data"]["rsyncRequest"].get<bool>();
         out<<"opening ssh tunnel... ";
         auto tunnel_ret = m_context.ssh.start_rsync_tunnel(sync_username, m_context.settings.bastion_key_file(sync_username));
         if(tunnel_ret.status) {
@@ -128,7 +127,7 @@ workspace_commands::workspace_sync(std::ostream& out,
                 return;
             }
 
-            std::string commandline = build_rsynch_commandline(out, sync_username, sync_password,
+            std::string commandline = build_rsynch_commandline(out, sync_username, 
                                                                tunnel_ret.dest_host, tunnel_ret.local_port,
                                                                enable_delete, direction, workspace.second);
                                                                            
