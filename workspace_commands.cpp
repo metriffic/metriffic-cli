@@ -32,7 +32,7 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
     std::stringstream ss;
     // format: "[%t]:%o:%f:Last Modified %M\"
     ss << "rsync -arvz --out-format=\"processing: %f\"  "
-        << " -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  -i ~/.config/metriffic/admin/keys/user_key  -p " << local_port << "'"
+        << " -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  -i ~/.config/metriffic/" << username << "/keys/user_key  -p " << local_port << "'"
         << " --progress ";
     if(enable_delete) {
         ss << " --delete ";

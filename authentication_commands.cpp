@@ -95,7 +95,7 @@ public:
         // Load private key
         BIO* bio = BIO_new_file(private_key_path.c_str(), "r");
         if (!bio) {
-            throw std::runtime_error("Failed to open private key file");
+            throw std::runtime_error("Failed to open the private key file for this user (user doesn't exist?)");
         }
         EVP_PKEY* private_key = nullptr;
         if (!key_passphrase.empty()) {

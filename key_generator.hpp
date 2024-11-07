@@ -1,6 +1,8 @@
 #ifndef KEYGEN_HPP
 #define KEYGEN_HPP
 
+#include <sys/stat.h>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -139,6 +141,19 @@ private:
         return public_key;
     }
 
+    static bool chmod_600(const std::string& key_path) 
+    {
+        // chmod 600 sets the file permissions to -rw-------
+        int result = chmod(key_path.c_str(), S_IRUSR | S_IWUSR);
+        
+        if (result == 0) {
+            return true;
+        } else {
+            throw std::runtime_error("Failed to chmod key file to 600...");
+            return false;
+        }
+    }
+
 public:
     static void generate_key_pair(const std::string& key_path, 
                                   int bits, 
@@ -215,6 +230,9 @@ public:
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
         ERR_free_strings();
+
+        // now run chmod 600 on the private keys...
+        chmod_600(key_path);
     }
 };
 
