@@ -135,20 +135,19 @@ ssh_manager::ssh_tunnel::setup_listening_socket()
 ssh_manager::ssh_tunnel_ret
 ssh_manager::ssh_tunnel::start()
 {
-    if(setup_listening_socket()) {
-        m_thread = std::thread([this]() {
-            while( m_should_stop == false ) {
-                bool result = run();
-                if(result == false) {
-                    PLOGE << "Error: tunnel thread failed";
-                    break;
-                }
-            };
-        });
-        return ssh_tunnel_ret(true, m_local_port, m_dest_host); 
+    if(setup_listening_socket() == false ) {
+        return ssh_tunnel_ret(false);
     }
-
-    return ssh_tunnel_ret(false);
+    m_thread = std::thread([this]() {
+        while( m_should_stop == false ) {
+            bool result = run();
+            if(result == false) {
+                PLOGE << "Error: tunnel thread failed";
+                break;
+            }
+        };
+    });
+    return ssh_tunnel_ret(true, m_local_port, m_dest_host); 
 }
 
 void 

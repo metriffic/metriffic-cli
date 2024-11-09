@@ -21,15 +21,15 @@ void sigint_callback_handler(int signum)
 {
     if(context.session.RunningCommand()) {        
         context.session.CancelRunningCommand();
-        context.gql_manager.stop();
+        context.gql_manager.stop_waiting_for_response(); 
     } else
     if(context.session.CurrentMenu()->Parent()) {
         context.session.SetCurrentMenu(context.session.CurrentMenu()->Parent());
         context.session.OutStream()<<std::endl;
         context.session.Prompt();
     } else {
-        std::cout<<"\nuse exit to quit..."<<std::endl;
-        //context.session.reset_input();
+        context.session.OutStream()<<"\nuse exit to quit..."<<std::endl;
+        context.session.reset_input();
         context.session.Prompt();   
     }             
 }

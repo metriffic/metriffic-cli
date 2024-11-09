@@ -82,6 +82,12 @@ gql_connection_manager::start(const std::string& uri)
 }
 
 void
+gql_connection_manager::stop_waiting_for_response()
+{
+    m_should_stop = true;
+}
+
+void
 gql_connection_manager::stop()
 {
     m_should_stop = true;
@@ -583,6 +589,7 @@ gql_connection_manager::sync_request()
 std::pair<bool, nlohmann::json> 
 gql_connection_manager::wait_for_response(int msg_id)
 {
+    m_should_stop = false;
     nlohmann::json response;
     while(true) {
         if(m_should_stop) {
@@ -608,6 +615,7 @@ gql_connection_manager::wait_for_response(int msg_id)
 std::pair<bool, std::list<nlohmann::json>> 
 gql_connection_manager::wait_for_response(const std::set<int>& msg_ids)
 {
+    m_should_stop = false;
     std::list<nlohmann::json> responses;
     while(true) {
         

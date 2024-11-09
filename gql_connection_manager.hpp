@@ -77,6 +77,7 @@ public:
     int sync_request();
     int subscribe_to_data_stream();
 
+    void stop_waiting_for_response();
     std::pair<bool, nlohmann::json> wait_for_response(int msg_id);
     std::pair<bool, std::list<nlohmann::json>> wait_for_response(const std::set<int>& msg_ids);
 
