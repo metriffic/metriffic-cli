@@ -68,6 +68,7 @@ public:
                       const std::vector<std::string>& datasets,
                       int max_jobs,
                       const std::string& command);
+    int session_join(const std::string& name);
     int session_stop(const std::string& name);
     int session_save(const std::string& name, const std::string& dockerimage, const std::string& comment);
     int session_status(const std::string& name);

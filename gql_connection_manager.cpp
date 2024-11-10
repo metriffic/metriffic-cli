@@ -404,8 +404,6 @@ gql_connection_manager::subscribe_to_data_stream()
     return id;    
 }
 
-
-
 int 
 gql_connection_manager::session_start(const std::string& name,
                                       const std::string& platform,
@@ -456,12 +454,39 @@ gql_connection_manager::session_start(const std::string& name,
 }
 
 int 
+gql_connection_manager::session_join(const std::string& name)
+{
+    int id = m_msg_id++;
+    std::stringstream ss;
+    ss << "query{ session (";
+    ss << " name: \"" << name << "\"";
+    ss << ")";    
+    ss << " { name, command } }";
+    json sstart_msg = {
+        {"id", id},
+        {"type", "start"},
+        {"payload", {            
+            {"authorization", m_token.empty() ? "" : "Bearer " + m_token}, 
+            {"endpoint", "cli"},            
+            {"variables", {}},
+            {"extensions", {}},
+            {"operationName", {}},
+            {"query", ss.str()}
+            }
+        },
+    };
+
+    m_connection->send(sstart_msg.dump(), websocketpp::frame::opcode::text);
+    return id;
+}
+
+int 
 gql_connection_manager::session_stop(const std::string& name)
 {
     int id = m_msg_id++;
 
     std::stringstream ss;
-    ss << "mutation{ sessionUpdate ( name: \"" << name << "\" state: \"CANCELED\" ) {id, name} }";
+    ss << "mutation{ sessionUpdateState ( name: \"" << name << "\" state: \"CANCELED\" ) {id, name} }";
     
     json sstop_msg = {
         {"id", id},

@@ -172,7 +172,8 @@ int main(int argc, char** argv)
     context.cli.RootMenu() -> Insert(query_cmds.create_show_cmd());
 
     metriffic::session_commands session_cmds(context);
-    context.cli.RootMenu() -> Insert(session_cmds.create_session_cmd());
+    context.cli.RootMenu() -> Insert(session_cmds.create_interactive_cmd());
+    context.cli.RootMenu() -> Insert(session_cmds.create_batch_cmd());
 
     metriffic::workspace_commands workspace_cmds(context);
     context.cli.RootMenu() -> Insert(workspace_cmds.create_sync_cmd());
