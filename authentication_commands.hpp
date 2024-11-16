@@ -6,7 +6,7 @@
 #include <cli/cli.h>
 #include <openssl/evp.h>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
@@ -14,7 +14,7 @@ namespace metriffic
 class authentication_commands
 {    
 public:
-    authentication_commands(Context& c);
+    authentication_commands(app_context& c);
 
     std::shared_ptr<cli::Command> create_login_cmd();
     std::shared_ptr<cli::Command> create_logout_cmd();
@@ -30,7 +30,7 @@ private:
     const std::vector<std::string> CMD_LOGOUT_PARAMDESC = {};
     
 private: 
-    Context& m_context;
+    app_context& m_context;
 };
 
 } // namespace metriffic

@@ -13,20 +13,20 @@
 namespace metriffic
 {
 
-struct Context
+struct app_context
 {
     static constexpr semver::version version{0, 0, 2, semver::prerelease::rc, 2};
     static constexpr semver::version api_version{0, 0, 1};
 
-    Context();
-    Context(const Context&) = delete;
+    app_context();
+    app_context(const app_context&) = delete;
     
     void start_communication(const std::string& URI);
 
     void logged_in(const std::string& username, const std::string& password);
     void logged_out();
     bool is_logged_in() const;
-    
+
     void on_connection_close(); 
     void on_connection_fail(const std::string& reason); 
     
@@ -47,6 +47,7 @@ struct Context
     metriffic::ssh_manager ssh;
 
     std::string username;
+    std::string token;
 
 private:
     std::thread gql_manager_thread;

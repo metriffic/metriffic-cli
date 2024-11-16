@@ -6,7 +6,7 @@
 #include <memory>
 #include <cli/cli.h>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
@@ -14,7 +14,7 @@ namespace metriffic
 class session_commands
 {    
 public:
-    session_commands(Context& c);
+    session_commands(app_context& c);
     std::shared_ptr<cli::Command> create_interactive_cmd();
     std::shared_ptr<cli::Command> create_batch_cmd();
 
@@ -29,9 +29,10 @@ private:
     void session_save(std::ostream& out, const std::string& name, 
                       const std::string& docker_image, const std::string& comment);
     void session_status(std::ostream& out, const std::string& name);
-    
+
 private: 
-    Context& m_context;
+    app_context& m_context;
+    std::string m_last_session_name;
 
 private: 
     const std::string MODE_INTERACTIVE = "interactive";

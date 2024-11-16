@@ -5,7 +5,7 @@
 #include <memory>
 #include <cli/cli.h>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
@@ -13,7 +13,7 @@ namespace metriffic
 class workspace_commands
 {    
 public:
-    workspace_commands(Context& c);
+    workspace_commands(app_context& c);
     std::shared_ptr<cli::Command> create_sync_cmd();
 
     void workspace_set(std::ostream& out,
@@ -35,7 +35,7 @@ private:
                                          const std::string& user_workspace);
 
 private: 
-    Context& m_context;
+    app_context& m_context;
 
     const std::string WORKSPACE_SET_CMD = "set";
     const std::string WORKSPACE_SHOW_CMD = "show";

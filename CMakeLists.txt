@@ -28,12 +28,12 @@ include_directories(${OPENSSL_ROOT_DIR}/include
 
 link_directories(${OPENSSL_ROOT_DIR}/lib)
 
-set(sources 
-        main.cpp 
+set(sources
+        main.cpp
         settings_manager.cpp
         ssh_manager.cpp
         gql_connection_manager.cpp
-        context.cpp
+        app_context.cpp
         session_commands.cpp
         authentication_commands.cpp
         query_commands.cpp
@@ -41,7 +41,7 @@ set(sources
         admin_commands.cpp
         utils.cpp
 )
-set(libraries 
+set(libraries
         ${Boost_LIBRARIES}
         pthread
         crypto
@@ -57,10 +57,10 @@ target_compile_definitions(metriffic_local
     PRIVATE TEST_MODE
 )
 
-set_target_properties(metriffic_local 
+set_target_properties(metriffic_local
     PROPERTIES EXCLUDE_FROM_ALL 1)
 
-target_link_libraries(metriffic ${libraries}) 
-target_link_libraries(metriffic_local ${libraries}) 
+target_link_libraries(metriffic ${libraries})
+target_link_libraries(metriffic_local ${libraries})
 
 install(TARGETS metriffic DESTINATION bin)

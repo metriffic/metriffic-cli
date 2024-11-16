@@ -11,15 +11,17 @@
 #include "workspace_commands.hpp"
 #include "admin_commands.hpp"
 //#include "test_commands.hpp"
-#include "context.hpp"
+#include "app_context.hpp"
+#include "utils.hpp"
 
 using namespace cli;
 
-metriffic::Context context;
+metriffic::app_context context;
 
 void sigint_callback_handler(int signum) 
 {
-    if(context.session.RunningCommand()) {        
+    if(context.session.RunningCommand()) {    
+        context.session.RunningCommand()->Cancel(context.session);
         context.session.CancelRunningCommand();
         context.gql_manager.stop_waiting_for_response(); 
     } else
@@ -103,7 +105,7 @@ void setup_logger()
         }
     };
     std::string log_file =  context.settings.log_file();
-    std::string token = context.settings.active_user().second;
+    std::string token = context.token;
     context.gql_manager.set_authentication_data(token);
 
     plog::init<log_formatter>(plog::verbose, log_file.c_str(), 1000000, 2); 
@@ -139,9 +141,9 @@ int main(int argc, char** argv)
     setup_logger();
 
     context.cli.RootMenu() -> Insert(
+        create_cmd_helper(
             "message_stream",
             [](std::ostream& out, int argc, char** argv){ 
-
                 cxxopts::Options options("message_stream", "connect to the server and stream debug messages...");
                 options.add_options()
                     ("v,verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"));
@@ -162,7 +164,10 @@ int main(int argc, char** argv)
                     }
                 }
             },
-            "stream debug messages from the server..." );
+            [](std::ostream&){},
+            "stream debug messages from the server...",
+            {})
+    );
 
     metriffic::authentication_commands auth_cmds(context);
     context.cli.RootMenu() -> Insert(auth_cmds.create_login_cmd());

@@ -4,12 +4,12 @@
 #include <nlohmann/json.hpp>
 #include <cxxopts.hpp>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
 
-Context::Context() 
+app_context::app_context() 
  : root_menu(std::make_unique< cli::Menu >( "metriffic" )),
    cli(std::move(root_menu), std::make_unique<cli::FileHistoryStorage>(".cli")),
    session(cli, ios, std::cout, 200)
@@ -27,7 +27,7 @@ Context::Context()
 }
 
 void 
-Context::start_communication(const std::string& URI)
+app_context::start_communication(const std::string& URI)
 {
     gql_manager_thread = std::thread([this, &URI](){
                                         gql_manager.start(URI); 
@@ -36,27 +36,29 @@ Context::start_communication(const std::string& URI)
 }
 
 void 
-Context::logged_in(const std::string& uname, const std::string& token) 
+app_context::logged_in(const std::string& uname, const std::string& tkn) 
 {
     username = uname;
+    token = tkn;
     gql_manager.set_authentication_data(token);
 }
 
 void 
-Context::logged_out()
+app_context::logged_out()
 {
     gql_manager.set_authentication_data("");
     username = "";
+    token = "";
 }
 
 bool 
-Context::is_logged_in() const 
+app_context::is_logged_in() const 
 {
     return username != "";
 }
 
 void 
-Context::on_connection_close() 
+app_context::on_connection_close() 
 {
     session.disable_input();
     ios.stop();
@@ -65,7 +67,7 @@ Context::on_connection_close()
 }
 
 void 
-Context::on_connection_fail(const std::string& reason) 
+app_context::on_connection_fail(const std::string& reason) 
 {
     session.disable_input();
     ios.stop();

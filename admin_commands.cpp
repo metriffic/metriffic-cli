@@ -14,7 +14,7 @@ namespace metriffic
 
 namespace tc = termcolor;
 
-admin_commands::admin_commands(Context& c)
+admin_commands::admin_commands(app_context& c)
  : m_context(c)
 {}
 
@@ -142,6 +142,7 @@ admin_commands::create_admin_cmd()
                 return;
             }        
         },
+        [](std::ostream&){},
         CMD_ADMIN_HELP,
         CMD_ADMIN_PARAMDESC
     );

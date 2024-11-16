@@ -16,7 +16,7 @@
 namespace metriffic
 {
 
-workspace_commands::workspace_commands(Context& c)
+workspace_commands::workspace_commands(app_context& c)
  : m_context(c)
 {}
 
@@ -259,6 +259,7 @@ workspace_commands::create_sync_cmd()
                 return;
             }        
         },
+        [](std::ostream&){},
         CMD_WORKSPACE_HELP,
         CMD_WORKSPACE_PARAMDESC
     );

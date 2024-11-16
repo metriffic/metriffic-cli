@@ -5,7 +5,7 @@
 #include <memory>
 #include <cli/cli.h>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
@@ -13,7 +13,7 @@ namespace metriffic
 class query_commands
 {    
 public:
-    query_commands(Context& c);
+    query_commands(app_context& c);
     std::shared_ptr<cli::Command> create_show_cmd();
 
 private:
@@ -27,7 +27,7 @@ private:
     //                const std::string& session);
 
 private: 
-    Context& m_context;
+    app_context& m_context;
     const std::string CMD_SHOW_NAME = "show";
     const std::string CMD_SHOW_HELP = "Query supported platforms and docker-images";
     const std::vector<std::string> CMD_SHOW_PARAMDESC = {

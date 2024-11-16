@@ -1,5 +1,5 @@
 #include "session_commands.hpp"
-#include "context.hpp"
+#include "app_context.hpp"
 #include "utils.hpp"
 
 #include <regex>
@@ -32,7 +32,7 @@ show_progress(std::ostream& out, const std::string& what, float progress)
     out.flush();
 }
 
-session_commands::session_commands(Context& c)
+session_commands::session_commands(app_context& c)
  : m_context(c)
 {}
 
@@ -91,6 +91,7 @@ session_commands::session_start_interactive(std::ostream& out,
                 out << std::endl;
             }
             out<< "interrupted..." << std::endl;
+            session_stop(out, name);
             break;
         }
 
@@ -236,7 +237,7 @@ session_commands::session_join_interactive(std::ostream& out, const std::string&
                                                     name,
                                                     m_context.username,
                                                     m_context.settings.bastion_key_file(m_context.username),
-                                                    ssh_data["host"].get<std::string>(),
+                                                    ssh_data["ip"].get<std::string>(),
                                                     ssh_data["port"].get<int>());   
                     if(tunnel_ret.status) {
                         out << "done." << std::endl;
@@ -452,9 +453,11 @@ session_commands::create_interactive_cmd()
 
                 if(command == "start") {
                     session_start_interactive(out, name, dockerimage, platform);
+                    m_last_session_name = name;
                 } else 
                 if(command == "stop") {
                     session_stop(out, name);
+                    m_last_session_name = "";
                 } else 
                 if(command == "join") {
                     session_join_interactive(out, name);
@@ -485,6 +488,13 @@ session_commands::create_interactive_cmd()
                 out << CMD_INTERACTIVE_SESSION_NAME << ": " << e.what() << std::endl;
                 return;
             }        
+        },
+        [this](std::ostream& out) {
+            // if(!m_last_session_name.empty()) {
+            //     out << "canceling session: " << m_last_session_name << std::endl;
+            //     session_stop(out, m_last_session_name);
+            //     m_last_session_name = "";
+            // }
         },
         CMD_INTERACTIVE_SESSION_HELP,
         CMD_INTERACTIVE_PARAMDESC
@@ -574,9 +584,11 @@ session_commands::create_batch_cmd()
 
                 if(command == "start") {
                     session_start_batch(out, name, dockerimage, platform, script, max_jobs, datasets);
+                    m_last_session_name = name;
                 } else 
                 if(command == "stop") {
                     session_stop(out, name);
+                    m_last_session_name = "";
                 } else 
                 if(command == "list") {
                     // TBD
@@ -592,6 +604,13 @@ session_commands::create_batch_cmd()
                 out << CMD_BATCH_SESSION_NAME << ": " << e.what() << std::endl;
                 return;
             }        
+        },
+        [this](std::ostream& out) {
+            if(!m_last_session_name.empty()) {
+                out << "canceling session: " << m_last_session_name << std::endl;
+                session_stop(out, m_last_session_name);
+                m_last_session_name = "";
+            }
         },
         CMD_BATCH_SESSION_HELP,
         CMD_BATCH_PARAMDESC

@@ -14,8 +14,7 @@ namespace metriffic
 settings_manager::settings_manager()
 {
     m_settings = {
-        {USERS_TAG, {}},
-        {ACTIVE_USER_TAG, {}}
+        {USERS_TAG, {}}
     };
 
     m_path = fs::path(getenv("HOME")) / ".config" / "metriffic" / "settings";
@@ -48,33 +47,6 @@ settings_manager::set_workspace(const std::string& username, const std::string& 
     m_settings[USERS_TAG][username][WORKSPACE_TAG] = path;
     save();
     return true;
-}
-
-std::pair<std::string, std::string> 
-settings_manager::active_user()
-{
-    const auto& user_info = m_settings[ACTIVE_USER_TAG];        
-    if(!user_info.is_null()) {
-        return std::make_pair(user_info["username"], user_info["token"]);
-    } else {
-        return std::make_pair("","");
-    }
-}
-
-bool
-settings_manager::set_active_user(const std::string& username, const std::string& token)
-{
-    m_settings[ACTIVE_USER_TAG]["username"] = username;
-    m_settings[ACTIVE_USER_TAG]["token"] = token;
-    save();
-    return true;
-}
-
-void
-settings_manager::clear_active_user()
-{
-    m_settings.erase(ACTIVE_USER_TAG);
-    save();
 }
 
 bool

@@ -13,7 +13,7 @@ namespace metriffic
 
 namespace tc = termcolor;
 
-query_commands::query_commands(Context& c)
+query_commands::query_commands(app_context& c)
  : m_context(c)
 {}
 
@@ -168,6 +168,7 @@ query_commands::create_show_cmd()
                 return;
             }        
         },
+        [](std::ostream&){},
         CMD_SHOW_HELP,
         CMD_SHOW_PARAMDESC
     );

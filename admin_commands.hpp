@@ -5,7 +5,7 @@
 #include <memory>
 #include <cli/cli.h>
 
-#include "context.hpp"
+#include "app_context.hpp"
 
 namespace metriffic
 {
@@ -13,7 +13,7 @@ namespace metriffic
 class admin_commands
 {    
 public:
-    admin_commands(Context& c);
+    admin_commands(app_context& c);
     std::shared_ptr<cli::Command> create_admin_cmd();
     std::shared_ptr<cli::Command> create_register_cmd();
 
@@ -25,7 +25,7 @@ private:
     void initialize_new_user(const std::string& username);
 
 private: 
-    Context& m_context;
+    app_context& m_context;
     const std::string CMD_ADMIN_NAME = "admin";
     const std::string CMD_SUB_DIAGNOSTICS = "diagnostics";
     const std::string CMD_SUB_REGISTER = "register";

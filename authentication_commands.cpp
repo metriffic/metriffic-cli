@@ -117,7 +117,7 @@ public:
 };
 
 
-authentication_commands::authentication_commands(Context& c)
+authentication_commands::authentication_commands(app_context& c)
  : m_context(c)
 {}
 
@@ -168,7 +168,6 @@ authentication_commands::create_login_cmd()
                     if(!m_context.settings.user_config_exists(username)) {
                         m_context.settings.create_user(username);
                     }
-                    m_context.settings.set_active_user(m_context.username, token);
                 } else 
                 if(login_msg["payload"].contains("errors") ) {
                     std::cout<<"login failed: "<<login_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
@@ -180,6 +179,7 @@ authentication_commands::create_login_cmd()
                 return;
             }        
         },
+        [](std::ostream&){},
         CMD_LOGIN_HELP,
         CMD_LOGIN_PARAMDESC
     );
@@ -198,12 +198,12 @@ authentication_commands::create_logout_cmd()
             if(logout_msg["payload"]["data"] != nullptr) {
                 std::cout<<"User "<<logout_msg["payload"]["data"]["logout"].get<std::string>()<<" has successfully logged out..."<<std::endl;
                 m_context.logged_out();
-                m_context.settings.clear_active_user();
             } else 
             if(logout_msg["payload"].contains("errors") ) {
                 std::cout<<"Failed to log out: "<<logout_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             }
         },
+        [](std::ostream&){},
         CMD_LOGOUT_HELP,
         CMD_LOGOUT_PARAMDESC
     );
