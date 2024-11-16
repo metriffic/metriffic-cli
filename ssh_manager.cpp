@@ -89,7 +89,7 @@ ssh_manager::ssh_tunnel::connect_to_bastion()
             sd = -1;
         }
     } else {
-        PLOGE << "Error: failed to get address to bastion: " << strerror(err);
+        PLOGE << "[bastion] error: failed to get address to bastion: " << strerror(err);
     }
 
     freeaddrinfo(addrs);
@@ -105,7 +105,7 @@ ssh_manager::ssh_tunnel::setup_listening_socket()
     for (m_local_port = m_local_port_range.first; m_local_port <= m_local_port_range.second; ++m_local_port) {
         m_listen_sock = socket(AF_INET, SOCK_STREAM, 0);
         if (m_listen_sock < 0) {
-            std::cerr << "Error opening socket." << std::endl;
+            std::cerr << "[tunnel] error: opening socket." << std::endl;
             continue;
         }
         static int sockopt = 1;
@@ -117,16 +117,16 @@ ssh_manager::ssh_tunnel::setup_listening_socket()
 
 
         if(-1 == bind(m_listen_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) {
-            PLOGE << "bind: " << strerror(errno);
+            PLOGE << "[tunnel] trying to bind: " << strerror(errno);
             close(m_listen_sock);
             continue;
         }
         if(-1 == listen(m_listen_sock, 2)) {
-            PLOGE << "listen: " << strerror(errno);
+            PLOGE << "[tunnel] trying to listen: " << strerror(errno);
             close(m_listen_sock);
             continue;
         }
-        PLOGV << "Server listening on port " << m_local_port << std::endl;
+        PLOGV << "[tunnel] server listening on port " << m_local_port << std::endl;
         return true;
     }
     return false;    
@@ -142,7 +142,7 @@ ssh_manager::ssh_tunnel::start()
         while( m_should_stop == false ) {
             bool result = run();
             if(result == false) {
-                PLOGE << "Error: tunnel thread failed";
+                PLOGE << "[tunnel] error: tunnel thread failed";
                 break;
             }
         };
@@ -176,19 +176,19 @@ ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
     os.sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if(os.sock == -1) { 
-        PLOGE << "Error: failed to create a socket!";
+        PLOGE << "[bastion] error: failed to create a socket!";
         return false;
     }
     os.sock = connect_to_bastion();
     if(os.sock == -1) {
-        PLOGE << "Error: failed to connect to bastion: " << strerror(errno);
+        PLOGE << "[bastion] error: failed to connect to bastion: " << strerror(errno);
         return false;
     }
     // Create a session instance 
     os.session = libssh2_session_init();
 
     if(!os.session) {
-        PLOGE << "Error: could not initialize SSH session!";
+        PLOGE << "[bastion] error: could not initialize SSH session!";
         return false;
     }
     // Start it up. This will trade welcome banners, exchange keys,
@@ -196,7 +196,7 @@ ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
     int rc = libssh2_session_handshake(os.session, os.sock);
 
     if(rc) {
-        PLOGE << "Error: failed to start up SSH session: " << rc;
+        PLOGE << "[bastion] error: failed to start up SSH session: " << rc;
         return false;
     }
 
@@ -205,10 +205,10 @@ ssh_manager::ssh_tunnel::establish_connection_to_bastion(one_session& os)
                                            m_bastion_public_key.c_str(), 
                                            m_bastion_private_key.c_str(), 
                                            "")) {
-        PLOGE << "Error: authentication by private key failed!";
+        PLOGE << "[bastion] error: authentication by private key failed!";
         return false;
     }
-    PLOGV << "Authentication by private key is succeeded!";
+    PLOGV << "[bastion] authentication  by private key is succeeded!";
     
     return true;
 }
@@ -265,11 +265,13 @@ ssh_manager::ssh_tunnel::run()
             if(establish_connection_to_bastion(os) == false) {
                 return false;
             }
+            PLOGV << "[host] trying to create a channel, dest " << m_dest_host << ":" << m_dest_port
+                  << ", src " << src_host << ":"<<src_port;
             os.channel = libssh2_channel_direct_tcpip_ex(os.session, 
                                                          m_dest_host.c_str(), m_dest_port, 
                                                          src_host, src_port);
             if(!os.channel) {
-                PLOGE << "libssh2_channel_direct_tcpip_ex: failed to create a channel...";
+                PLOGE << "[host] error: libssh2_channel_direct_tcpip_ex, failed to create a channel...";
                 return false;
             }
             break;
@@ -314,7 +316,7 @@ ssh_manager::ssh_tunnel::service_io(one_session& os)
                 return false;
             }
             else if(0 == len) {
-                PLOGV << "The client disconnected" << std::endl; 
+                PLOGV << "[tunnel] the client disconnected" << std::endl; 
                 return true;
             }
             ssize_t wr = 0;
@@ -325,7 +327,7 @@ ssh_manager::ssh_tunnel::service_io(one_session& os)
                     continue;
                 }
                 if(i < 0) {
-                    PLOGE << "Error: libssh2_channel_write: "<< i << std::endl;
+                    PLOGE << "[tunnel] error: libssh2_channel_write: "<< i << std::endl;
                     return false;
                 }
                 wr += i;
@@ -337,7 +339,7 @@ ssh_manager::ssh_tunnel::service_io(one_session& os)
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                PLOGE << "Error: libssh2_channel_read: " << (int)len;
+                PLOGE << "[tunnel] error: libssh2_channel_read: " << (int)len;
                 return false;
             }
             ssize_t wr = 0;
@@ -350,7 +352,7 @@ ssh_manager::ssh_tunnel::service_io(one_session& os)
                 wr += i;
             }
             if(libssh2_channel_eof(os.channel)) {
-                PLOGV << "The server disconnected";
+                PLOGV << "[tunnel] the server disconnected";
                 return true;
             }
         }
