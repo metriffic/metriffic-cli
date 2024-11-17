@@ -229,16 +229,16 @@ session_commands::session_join_interactive(std::ostream& out, const std::string&
                 out << "re-establishing connection to the requested container, this may take a while..." << std::endl;
                 out << "note: ctrl-c will cancel the request..." << std::endl << std::endl;
                 if(data_msg["payload"].contains("data")) {
-                    std::string ssh_data_str = data_msg["payload"]["data"]["session"]["command"].get<std::string>();
-                    PLOGV << "Trying to re-establish connection to session " << name << "using: " <<ssh_data_str<<std::endl;
-                    auto ssh_data = nlohmann::json::parse(ssh_data_str);
+                    std::string data_str = data_msg["payload"]["data"]["session"]["command"].get<std::string>();
+                    PLOGV << "Trying to re-establish connection to session " << name << "using: " <<data_str<<std::endl;
+                    auto data = nlohmann::json::parse(data_str);
                     out << "opening ssh tunnel... ";
                     auto tunnel_ret = m_context.ssh.start_ssh_tunnel(
                                                     name,
                                                     m_context.username,
                                                     m_context.settings.bastion_key_file(m_context.username),
-                                                    ssh_data["ip"].get<std::string>(),
-                                                    ssh_data["port"].get<int>());   
+                                                    data["host"].get<std::string>(),
+                                                    data["port"].get<int>());   
                     if(tunnel_ret.status) {
                         out << "done." << std::endl;
                         out << "\t" << tc::bold << "ssh -i " << m_context.settings.user_key_file(m_context.username) << 
@@ -350,22 +350,22 @@ session_commands::session_save(std::ostream& out, const std::string& name,
                     } else
                     if(msg["type"] == "commit_error") {
                         // TBD: more details are msg["error"].get<std::string>() 
-                        out << "error: failed to commit the docker image." << std::endl;
+                        out << "error: failed to commit the docker image: " << msg["error"].get<std::string>() << std::endl;
                         return;
                     } else
                     if(msg["type"] == "push_error") {
                         // TBD: more details are msg["error"].get<std::string>() 
-                        out << "error: failed to push the docker image." << std::endl;
+                        out << "error: failed to push the docker image: " << msg["error"].get<std::string>() << std::endl;
                         return;
                     } else
                     if(msg["type"] == "register_error") {
                         // TBD: more details are msg["error"].get<std::string>() 
-                        out << "error: failed to register the docker image." << std::endl;
+                        out << "error: failed to register the docker image: " << msg["error"].get<std::string>() << std::endl;
                         return;
                     } else
                     if(msg["type"] == "save_error") {
                         // TBD: more details are msg["error"].get<std::string>() 
-                        out << "error: failed to save the docker image." << std::endl;
+                        out << "error: failed to save the docker image: " << msg["error"].get<std::string>() << std::endl;
                         return;
                     }
 
