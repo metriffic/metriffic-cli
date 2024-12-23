@@ -38,17 +38,16 @@ session_commands::session_commands(app_context& c)
 
 void
 session_commands::session_start_batch(std::ostream& out, const std::string& name, const std::string& dockerimage, 
-                                      const std::string& platform, const std::string& script, int max_jobs, 
-                                      const std::vector<std::string>& datasets)
+                                      const std::string& platform, const std::string& script, int max_jobs, int dataset_split)
 {
     int msg_id = m_context.gql_manager.session_start(
                                 name,
                                 platform,
                                 MODE_BATCH,
                                 dockerimage,
-                                datasets,
+                                script,
                                 max_jobs,
-                                script);
+                                dataset_split);
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
@@ -78,9 +77,9 @@ session_commands::session_start_interactive(std::ostream& out,
                                 platform,
                                 MODE_INTERACTIVE,
                                 dockerimage,
-                                {},
+                                "",
                                 MAX_JOBS,
-                                "");
+                                0);
     bool in_progress = false;
 
     while(true) {
@@ -387,9 +386,12 @@ session_commands::session_status(std::ostream& out, const std::string& name)
     if(data_msg["payload"]["data"] != nullptr) {
         out << "session state: " << data_msg["payload"]["data"]["sessionStatus"]["state"].get<std::string>() << std::endl; 
         for (auto& s : data_msg["payload"]["data"]["sessionStatus"]["jobs"]) {
-            out << "  #" << s["id"].get<int>() 
-                << "\t dataset: " << s["dataset"].get<std::string>() 
-                << "\t state: " << s["state"].get<std::string>() << std::endl;
+            out << "  job#" << s["id"].get<int>() ;
+            if (s["datasetChunk"]  != nullptr) 
+                out << "\t dataset-chunk: " << s["datasetChunk"].get<int>();
+            else 
+                out << "\t interactive";
+            out<< "\t state: " << s["state"].get<std::string>() << std::endl;
         }
     } else 
     if(data_msg["payload"].contains("errors")) {
@@ -425,7 +427,6 @@ session_commands::create_interactive_cmd()
                 std::string platform = "";
                 std::string dockerimage = "";
                 std::string comment = "";
-                std::vector<std::string> datasets;
                 int max_jobs = 1;
                 if(command == "start") {
                     if(result.count("platform") != 1) {
@@ -515,7 +516,7 @@ session_commands::create_batch_cmd()
                 ("p, platform", CMD_BATCH_PARAMDESC[1], cxxopts::value<std::string>())
                 ("d, docker-image", CMD_BATCH_PARAMDESC[2], cxxopts::value<std::string>())
                 ("r, run-script", CMD_BATCH_PARAMDESC[3], cxxopts::value<std::string>())
-                ("i, input-datasets", CMD_BATCH_PARAMDESC[4], cxxopts::value<std::string>())
+                ("s, dataset-split", CMD_BATCH_PARAMDESC[4], cxxopts::value<int>()->default_value("1"))
                 ("j, jobs", CMD_BATCH_PARAMDESC[5], cxxopts::value<int>()->default_value("1"))
                 ("n, name", CMD_BATCH_PARAMDESC[6], cxxopts::value<std::string>());
 
@@ -535,7 +536,7 @@ session_commands::create_batch_cmd()
                 std::string dockerimage = "";
                 std::string script = "";
                 std::string comment = "";
-                std::vector<std::string> datasets;
+                int dataset_split = 1;
                 int max_jobs = 1;
                 if(command == "start") {
                     if(result.count("platform") != 1) {
@@ -548,30 +549,17 @@ session_commands::create_batch_cmd()
                         return;
                     }
                     dockerimage = result["docker-image"].as<std::string>();
-
-                        if(result.count("run-script") != 1) {
-                            out << CMD_BATCH_SESSION_NAME << ": '-r|--run-script' is a mandatory argument for starting a batch session." << std::endl;
-                            return;
-                        }
-                        script = result["run-script"].as<std::string>();
-                        if(result.count("input-datasets") != 1) {
-                            out << CMD_BATCH_SESSION_NAME << ": '-i|--input-datasets' is a mandatory argument for starting a batch session." << std::endl;
-                            return;
-                        }
-                        std::string ds = result["input-datasets"].as<std::string>();
-                        ds.erase(std::remove(ds.begin(), ds.end(), ' '), ds.end());
-        
-                        std::regex reg("[,]+");
-                        std::sregex_token_iterator begin(ds.begin(), ds.end(), reg, -1);
-                        std::sregex_token_iterator end;
-                        datasets.insert(datasets.begin(), begin, end);
-                        if(datasets.empty()) {
-                            out << CMD_BATCH_SESSION_NAME << ": the argument for --input-datasets must be in ds1,ds2,...dsn format."<< std::endl;
-                            return;
-                        }
-                        if(result.count("jobs") == 1) {
-                            max_jobs = result["jobs"].as<int>();
-                        }                
+                    if(result.count("run-script") != 1) {
+                        out << CMD_BATCH_SESSION_NAME << ": '-r|--run-script' is a mandatory argument for starting a batch session." << std::endl;
+                        return;
+                    }
+                    script = result["run-script"].as<std::string>();
+                    if(result.count("dataset-split")) {
+                        dataset_split = result["dataset-split"].as<int>();
+                    }
+                    if(result.count("jobs") == 1) {
+                        max_jobs = result["jobs"].as<int>();
+                    }                
                 }
 
                 std::string name = "";
@@ -583,7 +571,7 @@ session_commands::create_batch_cmd()
                 }
 
                 if(command == "start") {
-                    session_start_batch(out, name, dockerimage, platform, script, max_jobs, datasets);
+                    session_start_batch(out, name, dockerimage, platform, script, max_jobs, dataset_split);
                     m_last_session_name = name;
                 } else 
                 if(command == "stop") {

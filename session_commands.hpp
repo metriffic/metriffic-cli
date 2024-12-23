@@ -20,8 +20,7 @@ public:
 
 private:
     void session_start_batch(std::ostream& out, const std::string& name, const std::string& dockerimage, 
-                             const std::string& platform, const std::string& script, int max_jobs,
-                             const std::vector<std::string>& datasets);
+                             const std::string& platform, const std::string& script, int max_jobs, int dataset_split);
     void session_start_interactive(std::ostream& out, const std::string& name,
                                    const std::string& dockerimage, const std::string& platform);
     void session_join_interactive(std::ostream& out, const std::string& name);
@@ -47,8 +46,8 @@ private:
         {"   -p|--platform <platform name>: name of the platform to start mission on."},
         {"   -d|--docker-image <docker image>: docker image to instantiate on the target board."},
         {"   -r|--run-script <script/binary>: the script or binary command to execute, mandatory for batch mode."},
-        {"   -i|--input-datasets <[ds1,ds2,...dsn]>: list of input datasets to pass to each instance, mandatory for batch mode."},
-        {"   -j|--jobs <N>: maximum number of simultaneous jobs."},
+        {"   -s|--dataset-split <n=1>: split the dataset into this many chunks, one chunk per job."},
+        {"   -j|--jobs <n=1>: maximum number of simultaneous jobs."},
         {"-n|--name <name of the session>: Name of the session to perform operation on."},
     };
     const std::vector<std::string> CMD_INTERACTIVE_PARAMDESC = {

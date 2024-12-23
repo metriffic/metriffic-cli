@@ -65,9 +65,9 @@ public:
                       const std::string& platform,
                       const std::string& type,
                       const std::string& dockerimage,
-                      const std::vector<std::string>& datasets,
+                      const std::string& command,
                       int max_jobs,
-                      const std::string& command);
+                      int dataset_split);
     int session_join(const std::string& name);
     int session_stop(const std::string& name);
     int session_save(const std::string& name, const std::string& dockerimage, const std::string& comment);

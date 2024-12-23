@@ -408,17 +408,12 @@ int
 gql_connection_manager::session_start(const std::string& name,
                                       const std::string& platform,
                                       const std::string& type,
-                                      const std::string& dockerimage,
-                                      const std::vector<std::string>& datasets,
+                                      const std::string& docker_image,
+                                      const std::string& command,
                                       int max_jobs,
-                                      const std::string& command)
+                                      int dataset_split)
 {
     int id = m_msg_id++;
-
-    json dataset_js;
-    for(auto& ds : datasets) {
-        dataset_js.push_back(ds);
-    }
 
     std::istringstream iss(command);
     json command_js;
@@ -430,9 +425,9 @@ gql_connection_manager::session_start(const std::string& name,
     ss << " platform: \"" << platform << "\"";
     ss << " name: \"" << name << "\"";
     ss << " type: \"" << type << "\"";
-    ss << " dockerimage: \"" << dockerimage << "\"";
-    ss << " max_jobs: " << max_jobs;
-    ss << " datasets: " << std::quoted(dataset_js.dump());
+    ss << " dockerimage: \"" << docker_image << "\"";
+    ss << " maxJobs: " << max_jobs;
+    ss << " datasetSplit: " << dataset_split;
     ss << " command: " << std::quoted(command_js.dump());
     ss << ")";    
     ss << " { name, id, user{username}, dockerImage{name} } }";
@@ -543,7 +538,7 @@ gql_connection_manager::session_status(const std::string& name)
     int id = m_msg_id++;
 
     std::stringstream ss;
-    ss << "query { sessionStatus ( name: \"" << name << "\" ) {jobs {id dataset state} state} }";
+    ss << "query { sessionStatus ( name: \"" << name << "\" ) {jobs {id datasetChunk state} state} }";
     
     json sstop_msg = {
         {"id", id},
