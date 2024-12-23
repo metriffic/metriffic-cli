@@ -24,7 +24,7 @@ admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
     out << std::endl << "printing platform diagnostics:" << std::endl;
     for (const auto& pel : msg["platforms"].items()) {
         const auto& p = pel.value();
-        out << "    platform: " << tc::bold << tc::underline <<  tc::blue << p["name"].get<std::string>() << tc::reset << std::endl;
+        out << "    platform: " << tc::bold << tc::underline <<  tc::cyan << p["name"].get<std::string>() << tc::reset << std::endl;
         for (const auto& bel : p["boards"].items()) {
             const auto& b = bel.value();
             out << "        hostname: " << tc::bold << b["hostname"].get<std::string>() << tc::reset << std::endl;
@@ -37,7 +37,7 @@ admin_commands::dump_diagnostics(std::ostream& out, const nlohmann::json& msg)
     out << std::endl << "printing session diagnostics:" << std::endl;    
     for (const auto& pel : msg["sessions"].items()) {
         const auto& p = pel.value();
-        out << "    platform: " << tc::bold << tc::underline <<  tc::blue << p["name"].get<std::string>() << tc::reset << std::endl;    
+        out << "    platform: " << tc::bold << tc::underline <<  tc::cyan << p["name"].get<std::string>() << tc::reset << std::endl;    
         out << "        submitted sessions:" << tc::bold << p["sessions"].size() << tc::reset << std::endl;
         for (const auto& sel : p["sessions"].items()) {
             const auto& s = sel.value();

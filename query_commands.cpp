@@ -26,7 +26,8 @@ query_commands::show_platforms(std::ostream& out)
 
     if(show_msg["payload"]["data"] != nullptr) {
         for (auto& s : show_msg["payload"]["data"]["allPlatforms"]) {
-            out << "    " <<  tc::bold << tc::underline << tc::blue  << s["name"].get<std::string>() << tc::reset 
+
+            out << "    " <<  tc::bold << tc::underline << tc::cyan  << s["name"].get<std::string>() << tc::reset 
                 << ",  " << s["description"].get<std::string>() << std::endl;
         }
     } else 
@@ -49,7 +50,7 @@ query_commands::show_docker_images(std::ostream& out, const std::string& platfor
         }
 
         for(auto& pi : platform_images) {
-            out << "    platform: " << tc::bold << tc::underline << tc::blue << pi.first << tc::reset << std::endl;
+            out << "    platform: " << tc::bold << tc::underline << tc::cyan << pi.first << tc::reset << std::endl;
             for (const auto& di : pi.second) {
                 out << "        " << tc::bold << di << tc::reset << std::endl;
             }
