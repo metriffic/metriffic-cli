@@ -333,11 +333,11 @@ gql_connection_manager::query_sessions(const std::string& platform,
     int id = m_msg_id++;
     std::stringstream ss;
     ss << "query{ allSessions(platformName: \""<< platform <<"\" "
-       << "status: [ ";
+       << "state: [ ";
     for(const auto& s : statuses) {
         ss << "\"" << s << "\", ";
     }   
-    ss << "]) { id name state } }";
+    ss << "]) { id name state createdAt } }";
     json allsessions_msg = {
         {"id", id},
         {"type", "start"},
