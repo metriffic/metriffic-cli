@@ -5,6 +5,8 @@
 #include <termcolor/termcolor.hpp>
 #include <regex>
 #include <algorithm>
+#include <ctime>
+#include <sstream>
 #include <map>
 #include <list>
 
@@ -61,7 +63,18 @@ query_commands::show_docker_images(std::ostream& out, const std::string& platfor
     }
 }
 
-/*void
+std::string format_timestamp(time_t timestamp) {
+    std::tm* time_info = std::localtime(&timestamp);
+    if (time_info == nullptr) {
+        return "invalid timestamp"; 
+    }
+
+    std::stringstream ss;
+    ss << std::put_time(time_info, "%Y-%m-%d %H:%M:%S");
+    return ss.str();
+}
+
+void
 query_commands::show_sessions(std::ostream& out, 
                               const std::string& platform, 
                               const std::vector<std::string>& statuses)
@@ -71,8 +84,10 @@ query_commands::show_sessions(std::ostream& out,
     nlohmann::json show_msg = response.second;
     if(show_msg["payload"]["data"] != nullptr) {
         for (auto& s : show_msg["payload"]["data"]["allSessions"]) {
-            out << "  " << s["name"].get<std::string>() 
-                      << "\t : " << s["state"].get<std::string>() << std::endl;
+            out << "  name: " << s["name"].get<std::string>() 
+                      << "\t status: " << s["state"].get<std::string>() 
+                      << "\t created: " << format_timestamp(s["createdAt"].get<int>()) 
+                      << std::endl;
         }
     } else 
     if(show_msg["payload"].contains("errors") ) {
@@ -80,7 +95,7 @@ query_commands::show_sessions(std::ostream& out,
     }
 }
 
-void
+/*void
 query_commands::show_jobs(std::ostream& out, const std::string& platform, const std::string& session)
 {
     int msg_id = m_context.gql_manager.query_jobs(platform, session);
@@ -105,8 +120,8 @@ query_commands::create_show_cmd()
             cxxopts::Options options(CMD_SHOW_NAME, CMD_SHOW_HELP);
             options.add_options()
                 ("items", CMD_SHOW_PARAMDESC[0], cxxopts::value<std::string>())
-                ("p, platform", CMD_SHOW_PARAMDESC[1], cxxopts::value<std::string>());
-                //("s, session", CMD_SHOW_PARAMDESC[2], cxxopts::value<std::string>())
+                ("p, platform", CMD_SHOW_PARAMDESC[1], cxxopts::value<std::string>())
+                ("s, session", CMD_SHOW_PARAMDESC[2], cxxopts::value<std::string>());
                 //("f, filter", CMD_SHOW_PARAMDESC[3], cxxopts::value<std::string>());
 
             options.parse_positional({"items"});
@@ -123,24 +138,24 @@ query_commands::create_show_cmd()
                 auto items = result["items"].as<std::string>();
 
                 std::vector<std::string> filter;
-                // if(result.count("filter")) {
-                //     if(items != "sessions") {
-                //         out << CMD_SHOW_NAME << ": option --filter can be used when querying sessions only."<< std::endl;
-                //         return;
-                //     }
-                //     std::string str_filt = result["filter"].as<std::string>();
-                //     str_filt.erase(std::remove(str_filt.begin(), str_filt.end(), ' '), str_filt.end());
+                if(result.count("filter")) {
+                    if(items != "sessions") {
+                        out << CMD_SHOW_NAME << ": option --filter can be used when querying sessions only."<< std::endl;
+                        return;
+                    }
+                    std::string str_filt = result["filter"].as<std::string>();
+                    str_filt.erase(std::remove(str_filt.begin(), str_filt.end(), ' '), str_filt.end());
     
-                //     std::regex reg("[:|]+");
-                //     std::sregex_token_iterator begin(str_filt.begin(), str_filt.end(), reg, -1);
-                //     std::sregex_token_iterator end;
-                //     std::vector<std::string> parsed_filt(begin, end);
-                //     if(parsed_filt.size() < 2 ||  parsed_filt[0] != "status") {
-                //         out << CMD_SHOW_NAME << ": the argument for --filter must be in status:<A|B|...> format."<< std::endl;
-                //         return;
-                //     }
-                //     filter.assign(parsed_filt.begin()+1, parsed_filt.end());
-                // }
+                    std::regex reg("[:|]+");
+                    std::sregex_token_iterator begin(str_filt.begin(), str_filt.end(), reg, -1);
+                    std::sregex_token_iterator end;
+                    std::vector<std::string> parsed_filt(begin, end);
+                    if(parsed_filt.size() < 2 ||  parsed_filt[0] != "status") {
+                        out << CMD_SHOW_NAME << ": the argument for --filter must be in status:<A|B|...> format."<< std::endl;
+                        return;
+                    }
+                    filter.assign(parsed_filt.begin()+1, parsed_filt.end());
+                }
                 std::string platform = "";
                 if(result.count("platform")) {
                     platform = result["platform"].as<std::string>();
@@ -151,9 +166,9 @@ query_commands::create_show_cmd()
                 } else 
                 if(items == "docker-images") {
                     show_docker_images(out, platform);
-                // } else 
-                // if(items == "sessions") {
-                //     show_sessions(out, platform, filter);
+                } else 
+                if(items == "sessions") {
+                    show_sessions(out, platform, filter);
                 // } else 
                 // if(items == "jobs") {
                 //     std::string platform;

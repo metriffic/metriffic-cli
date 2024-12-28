@@ -59,6 +59,7 @@ session_commands::session_start_batch(std::ostream& out, const std::string& name
             out<<"error: "<<data_msg["payload"]["errors"][0]["message"].get<std::string>()<<std::endl;
             return;
         } else {
+            out<<"batch session \""<<name<<"\" is successfully submitted to grid."<<std::endl;
             break;
         }
     }
