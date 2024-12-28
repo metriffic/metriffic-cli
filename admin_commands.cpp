@@ -131,7 +131,7 @@ admin_commands::create_admin_cmd()
                     admin_diagnostics(out);
                 } else 
                 if(subcommand == CMD_SUB_REGISTER) {
-                    admin_register(out);
+                    admin_register_user(out);
                 } else {
                     out << CMD_ADMIN_NAME << ": unsupported subcommand type, "
                         << "the only supported subcommand for now is '"<<CMD_SUB_DIAGNOSTICS<<"'." << std::endl;
@@ -148,7 +148,7 @@ admin_commands::create_admin_cmd()
     );
 }
 
-void admin_commands::admin_register(std::ostream& out)
+void admin_commands::admin_register_user(std::ostream& out)
 {
     m_context.session.disable_input();                
     std::string username, email;
@@ -161,18 +161,8 @@ void admin_commands::admin_register(std::ostream& out)
         m_context.session.enable_input();
         return;
     }
-    std::cout << "enter password: ";   
-    // read the spurious return-char at the end 
-    getchar();
-    std::string password = capture_password();
-    std::cout << "re-enter password: ";            
-    std::string repassword = capture_password();
-    if(password != repassword) {
-        std::cout << "passwords don't match. Failed to register, try again..."<<std::endl;
-        m_context.session.enable_input();
-        return;
-    }
-    int msg_id = m_context.gql_manager.registr(username, email, password, repassword);                            
+
+    int msg_id = m_context.gql_manager.register_user(username, email);                            
     m_context.session.enable_input();
 
     auto response = m_context.gql_manager.wait_for_response(msg_id);

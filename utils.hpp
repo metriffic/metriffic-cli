@@ -5,10 +5,6 @@
 #include <cli/cli.h>
 
 
-int capture_char();
-
-std::string capture_password();
-
 bool validate_email(const std::string& email);
 
 template<typename F, typename CancelF>

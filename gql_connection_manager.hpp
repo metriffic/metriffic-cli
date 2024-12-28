@@ -50,8 +50,7 @@ public:
 
     void set_authentication_data(const std::string& token);
 
-    int registr(const std::string& username, const std::string& email,
-                const std::string& password, const std::string& repassword);
+    int register_user(const std::string& username, const std::string& email);
     int login(const std::string& username, const std::string& token);
     int logout();
 

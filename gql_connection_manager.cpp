@@ -205,8 +205,7 @@ gql_connection_manager::wait_for_handshake()
 }
 
 int 
-gql_connection_manager::registr(const std::string& username, const std::string& email,
-                                const std::string& password, const std::string& repassword)
+gql_connection_manager::register_user(const std::string& username, const std::string& email)
 {
     int id = m_msg_id++;
     std::stringstream ss;
@@ -214,10 +213,6 @@ gql_connection_manager::registr(const std::string& username, const std::string& 
         << username
         << "\" email: \""
         << email
-        << "\" password: \""
-        << password
-        << "\" cpassword: \""
-        << repassword
         << "\") {id, username token}}";
     json register_msg = {
         {"id", id},
@@ -481,7 +476,7 @@ gql_connection_manager::session_stop(const std::string& name)
     int id = m_msg_id++;
 
     std::stringstream ss;
-    ss << "mutation{ sessionUpdateState ( name: \"" << name << "\" state: \"CANCELED\" ) {id, name} }";
+    ss << "mutation{ sessionUpdateState ( name: \"" << name << "\" state: \"COMPLETED\" ) {id, name} }";
     
     json sstop_msg = {
         {"id", id},
