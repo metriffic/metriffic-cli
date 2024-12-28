@@ -32,7 +32,8 @@ private:
                                          unsigned int local_port,
                                          bool enable_delete,
                                          const std::string& direction,
-                                         const std::string& user_workspace);
+                                         const std::string& user_workspace,
+                                         const std::string& folder);
 
 private: 
     app_context& m_context;

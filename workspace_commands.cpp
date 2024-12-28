@@ -27,23 +27,28 @@ workspace_commands::build_rsynch_commandline(std::ostream& out,
                                              unsigned int local_port,
                                              bool enable_delete,
                                              const std::string& direction,
-                                             const std::string& user_workspace)
+                                             const std::string& user_workspace,
+                                             const std::string& folder)
 {
     std::stringstream ss;
+    namespace fs = std::filesystem;
     // format: "[%t]:%o:%f:Last Modified %M\"
     ss << "rsync -arvz --out-format=\"processing: %f\"  "
-        << " -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  -i ~/.config/metriffic/" << username << "/keys/user_key  -p " << local_port << "'"
-        << " --progress ";
+       << " -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  -i ~/.config/metriffic/" << username << "/keys/user_key  -p " << local_port << "'"
+       << " --progress ";
     if(enable_delete) {
         ss << " --delete ";
-    }               
+    }       
+    if(!folder.empty()) {
+        ss << "--include='/" << folder << "' --include='/"<<folder<<"/**' --exclude='*' ";
+    }        
     if(direction == SYNC_DIR_DOWN) {
         ss << username <<"@localhost: "
-            << user_workspace;
+           << user_workspace;
     } else 
     if(direction == SYNC_DIR_UP) {
         ss << user_workspace << " "
-            << username << "@localhost:";
+           << username << "@localhost:";
     } else {
         // shouldn't be possible unless the code is inconsistent... 
         // send out a message. and do nothing.
@@ -126,10 +131,9 @@ workspace_commands::workspace_sync(std::ostream& out,
                 out << "error: local workspace for the current user doesn't exist." << std::endl;
                 return;
             }
-
             std::string commandline = build_rsynch_commandline(out, sync_username, 
                                                                tunnel_ret.dest_host, tunnel_ret.local_port,
-                                                               enable_delete, direction, workspace.second);
+                                                               enable_delete, direction, workspace.second, folder);
                                                                            
             PLOGV << "rsync commandline: " << commandline;                                                                           
             std::array<char, 32> buffer;
