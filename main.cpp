@@ -58,9 +58,19 @@ void process_command_line(int argc, char** argv)
         cxxopts::Options options(argv[0], " - command line options");
         options.add_options()
             ("v,version", "Print version information and exit.")
-            ("g,generate-keys", "Generate pairs of keys for user authentication.", cxxopts::value<std::string>());
+            ("g,generate-keys", "Generate pairs of keys for user authentication.", cxxopts::value<std::string>())
+            ("h,help", "Print usage");
 
         auto result = options.parse(argc, argv);
+
+        if (result.unmatched().size()) {
+            throw cxxopts::exceptions::exception("unsupported option");
+        }
+        
+        if (result.count("help")) {
+            std::cout << options.help() << std::endl;
+            exit(0);
+        }
 
         if (result.count("version")) {
             std::cout << "\rcli tool:    " << context.version << std::endl;
