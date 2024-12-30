@@ -91,7 +91,7 @@ session_commands::session_start_interactive(std::ostream& out,
                 out << std::endl;
             }
             out<< "interrupted..." << std::endl;
-            session_stop(out, name);
+            session_stop_interactive(out, name);
             break;
         }
 
@@ -262,13 +262,13 @@ session_commands::session_join_interactive(std::ostream& out, const std::string&
 }
 
 void
-session_commands::session_stop(std::ostream& out, const std::string& name)
+session_commands::session_stop_interactive(std::ostream& out, const std::string& name)
 {
     out << "terminating the ssh tunnel... ";
     m_context.ssh.stop_ssh_tunnel(name);
     out << "done" << std::endl;
-    
-    int msg_id = m_context.gql_manager.session_stop(name);
+    bool cancel = false;
+    int msg_id = m_context.gql_manager.session_stop(name, cancel);
     while(true) {
         auto response = m_context.gql_manager.wait_for_response(msg_id);
         nlohmann::json data_msg = response.second;
@@ -282,6 +282,29 @@ session_commands::session_stop(std::ostream& out, const std::string& name)
             return;
         } else {
             out << "session '" << data_msg["payload"]["data"]["sessionUpdateState"]["name"].get<std::string>() << "' is ended." << std::endl;
+            break;
+        }
+    }
+}
+
+void
+session_commands::session_stop_batch(std::ostream& out, const std::string& name)
+{   
+    bool cancel = true;
+    int msg_id = m_context.gql_manager.session_stop(name, cancel);
+    while(true) {
+        auto response = m_context.gql_manager.wait_for_response(msg_id);
+        nlohmann::json data_msg = response.second;
+        PLOGV << "session stop response: " << data_msg.dump(4);
+        if(data_msg["type"] == "error") {
+            out << "error: likely an invalid query..." << std::endl;
+            return;
+        } else 
+        if(data_msg["payload"].contains("errors")) {
+            out << "error: " << data_msg["payload"]["errors"][0]["message"].get<std::string>() << std::endl;
+            return;
+        } else {
+            out << "session '" << data_msg["payload"]["data"]["sessionUpdateState"]["name"].get<std::string>() << "' is canceled." << std::endl;
             break;
         }
     }
@@ -458,7 +481,7 @@ session_commands::create_interactive_cmd()
                     m_last_session_name = name;
                 } else 
                 if(command == "stop") {
-                    session_stop(out, name);
+                    session_stop_interactive(out, name);
                     m_last_session_name = "";
                 } else 
                 if(command == "join") {
@@ -576,7 +599,7 @@ session_commands::create_batch_cmd()
                     m_last_session_name = name;
                 } else 
                 if(command == "stop") {
-                    session_stop(out, name);
+                    session_stop_batch(out, name);
                     m_last_session_name = "";
                 } else 
                 if(command == "list") {
@@ -597,7 +620,7 @@ session_commands::create_batch_cmd()
         [this](std::ostream& out) {
             if(!m_last_session_name.empty()) {
                 out << "canceling session: " << m_last_session_name << std::endl;
-                session_stop(out, m_last_session_name);
+                session_stop_batch(out, m_last_session_name);
                 m_last_session_name = "";
             }
         },

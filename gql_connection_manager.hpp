@@ -68,7 +68,7 @@ public:
                       int max_jobs,
                       int dataset_split);
     int session_join(const std::string& name);
-    int session_stop(const std::string& name);
+    int session_stop(const std::string& name, bool cancel);
     int session_save(const std::string& name, const std::string& dockerimage, const std::string& comment);
     int session_status(const std::string& name);
 

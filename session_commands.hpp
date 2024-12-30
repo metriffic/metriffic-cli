@@ -24,7 +24,8 @@ private:
     void session_start_interactive(std::ostream& out, const std::string& name,
                                    const std::string& dockerimage, const std::string& platform);
     void session_join_interactive(std::ostream& out, const std::string& name);
-    void session_stop(std::ostream& out, const std::string& name);
+    void session_stop_interactive(std::ostream& out, const std::string& name);
+    void session_stop_batch(std::ostream& out, const std::string& name);
     void session_save(std::ostream& out, const std::string& name, 
                       const std::string& docker_image, const std::string& comment);
     void session_status(std::ostream& out, const std::string& name);
